@@ -1,31 +1,11 @@
-const { getUserId } = require('../utils')
-
 const Query = {
-  feed(parent, args, ctx, info) {
-    return ctx.db.query.posts({ where: { isPublished: true } }, info)
+  games(_, args, context, info) {
+    return context.db.query.games({}, info);
   },
 
-  drafts(parent, args, ctx, info) {
-    const id = getUserId(ctx)
-
-    const where = {
-      isPublished: false,
-      author: {
-        id
-      }
-    }
-
-    return ctx.db.query.posts({ where }, info)
+  words(_, args, context, info) {
+    return context.db.query.words({}, info);
   },
+};
 
-  post(parent, { id }, ctx, info) {
-    return ctx.db.query.post({ where: { id } }, info)
-  },
-
-  me(parent, args, ctx, info) {
-    const id = getUserId(ctx)
-    return ctx.db.query.user({ where: { id } }, info)
-  },
-}
-
-module.exports = { Query }
+module.exports = { Query };
