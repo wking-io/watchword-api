@@ -1,24 +1,23 @@
-<h1 align="center"><strong>Boilerplate for an Advanced GraphQL Server w/ TypeScript</strong></h1>
+<h1 align="center"><strong>Boilerplate for an Advanced GraphQL Server</strong></h1>
 
 <br />
 
-<div align="center"><img src="https://imgur.com/1MfnLVl.png" /></div>
+![](https://imgur.com/lIi4YrZ.png)
 
 <div align="center"><strong>🚀 Bootstrap your GraphQL server within seconds</strong></div>
-<div align="center">Advanced starter kit for a flexible GraphQL server for TypeScript - based on best practices from the GraphQL community.</div>
+<div align="center">Advanced starter kit for a flexible GraphQL server for Node.js - based on best practices from the GraphQL community.</div>
 
 ## Features
 
 - **Scalable GraphQL server:** The server uses [`graphql-yoga`](https://github.com/prisma/graphql-yoga) which is based on Apollo Server & Express
-- **Static type generation**: TypeScript types for GraphQL queries & mutations are generated in a build step
-- **Authentication**: Signup and login workflows are ready to use for your users
 - **GraphQL database:** Includes GraphQL database binding to [Prisma](https://www.prismagraphql.com) (running on MySQL)
+- **Authentication**: Signup and login workflows are ready to use for your users
 - **Tooling**: Out-of-the-box support for [GraphQL Playground](https://github.com/prisma/graphql-playground) & [query performance tracing](https://github.com/apollographql/apollo-tracing)
 - **Extensible**: Simple and flexible [data model](./database/datamodel.graphql) – easy to adjust and extend
 - **No configuration overhead**: Preconfigured [`graphql-config`](https://github.com/prisma/graphql-config) setup
 - **Realtime updates**: Support for GraphQL subscriptions (_coming soon_)
 
-Read more about the idea behind GraphQL boilerplates [here](https://blog.graph.cool/graphql-boilerplates-graphql-create-how-to-setup-a-graphql-project-6428be2f3a5).
+For a fully-fledged **GraphQL & Node.js tutorial**, visit [How to GraphQL](https://www.howtographql.com/graphql-js/0-introduction/). You can more learn about the idea behind GraphQL boilerplates [here](https://blog.graph.cool/graphql-boilerplates-graphql-create-how-to-setup-a-graphql-project-6428be2f3a5).
 
 ## Requirements
 
@@ -31,8 +30,8 @@ npm install -g graphql-cli
 ## Getting started
 
 ```sh
-# 1. Bootstrap GraphQL server in directory `my-app`, based on `typescript-advanced` boilerplate
-graphql create my-app --boilerplate typescript-advanced
+# 1. Bootstrap GraphQL server in directory `my-app`, based on `node-advanced` boilerplate
+graphql create my-app --boilerplate node-advanced
 
 # 2. When prompted, deploy the Prisma service to a _public cluster_
 
@@ -68,10 +67,10 @@ yarn dev
 | `　　├── prisma.yml` | The root configuration file for your Prisma database service ([docs](https://www.prismagraphql.com/docs/reference/prisma.yml/overview-and-example-foatho8aip)) |
 | `　　└── datamodel.graphql` | Defines your data model (written in [GraphQL SDL](https://blog.graph.cool/graphql-sdl-schema-definition-language-6755bcb9ce51)) |
 | `└── src ` (_directory_) | _Contains the source files for your GraphQL server_ |
-| `　　├── index.ts` | The entry point for your GraphQL server |
+| `　　├── index.js` | The entry point for your GraphQL server |
 | `　　├── schema.graphql` | The **application schema** defining the API exposed to client applications  |
+| `　　├── resolvers` (_directory_) | _Contains the implementation of the resolvers for the application schema_ |
 | `　　└── generated` (_directory_) | _Contains generated files_ |
-| `　　　　├── prisma.ts` | The generated TypeScript bindings for the Prisma GraphQL API  |
 | `　　　　└── prisma.grapghql` | The **Prisma database schema** defining the Prisma GraphQL API  |
 
 ## Contributing
