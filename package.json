@@ -6,10 +6,11 @@
   "author": "William King <contactg@wking.io>",
   "license": "MIT",
   "scripts": {
-    "start": "nodemon -e js,graphql -x node -r now-env src/index.js",
+    "start": "node src/index.js",
+    "start:dev": "nodemon -e js,graphql -x node -r now-env src/index.js",
     "debug": "nodemon -e js,graphql -x node --inspect -r now-env src/index.js",
     "playground": "graphql playground",
-    "dev": "npm-run-all --parallel start playground",
+    "dev": "npm-run-all --parallel start:dev playground",
     "prisma": "prisma deploy"
   },
   "now": {
