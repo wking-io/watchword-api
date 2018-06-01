@@ -1,5 +1,7 @@
-function user({ user: { id } }, _, context, info) {
-  return context.db.query.user({ where: { id } }, info);
+const AuthPayload = {
+  user: async ({ user: { id } }, args, ctx, info) => {
+    return ctx.db.query.user({ where: { id } }, info)
+  },
 }
 
-module.exports = { user };
+module.exports = { AuthPayload }

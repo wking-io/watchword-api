@@ -1,12 +1,11 @@
-function games(_, args, context, info) {
-  return context.db.query.games({}, info);
-}
+const Query = {
+  games(_, args, context, info) {
+    return context.db.query.games({}, info);
+  },
 
-function words(_, args, context, info) {
-  return context.db.query.words({}, info);
-}
-
-module.exports = {
-  games,
-  words,
+  words(_, args, context, info) {
+    return context.db.query.words({}, info);
+  },
 };
+
+module.exports = { Query };

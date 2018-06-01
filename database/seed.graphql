@@ -1,0 +1,72 @@
+mutation {
+  createUser(
+    data: {
+      email: "contact@wking.io"
+      password: "$2a$10$A7h8h50ijz//sNF6tRCtN.qtDs.M9zGRF5IxurUMP8II604ym6isu"
+      name: "Will King"
+    }
+  ) {
+    id
+  }
+  createWord(
+    data: { word: "run", group: "un", beginning: "r", ending: "n", vowel: "u" }
+  ) {
+    id
+  }
+  createWord(
+    data: { word: "bun", group: "un", beginning: "b", ending: "n", vowel: "u" }
+  ) {
+    id
+  }
+  createWord(
+    data: { word: "sun", group: "un", beginning: "s", ending: "n", vowel: "u" }
+  ) {
+    id
+  }
+  createWord(
+    data: { word: "fun", group: "un", beginning: "f", ending: "n", vowel: "u" }
+  ) {
+    id
+  }
+  createWord(
+    data: { word: "nun", group: "un", beginning: "n", ending: "n", vowel: "u" }
+  ) {
+    id
+  }
+  createWord(
+    data: { word: "bat", group: "at", beginning: "b", ending: "t", vowel: "a" }
+  ) {
+    id
+  }
+  createWord(
+    data: { word: "cat", group: "at", beginning: "c", ending: "t", vowel: "a" }
+  ) {
+    id
+  }
+  createWord(
+    data: { word: "hat", group: "at", beginning: "h", ending: "t", vowel: "a" }
+  ) {
+    id
+  }
+  createWord(
+    data: { word: "mat", group: "at", beginning: "m", ending: "t", vowel: "a" }
+  ) {
+    id
+  }
+  createWord(
+    data: { word: "rat", group: "at", beginning: "r", ending: "t", vowel: "a" }
+  ) {
+    id
+  }
+  createWord(
+    data: {
+      word: "chat"
+      group: "at"
+      beginning: "ch"
+      ending: "t"
+      vowel: "a"
+    }
+  ) {
+    id
+  }
+}

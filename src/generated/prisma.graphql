@@ -1,5 +1,5 @@
-# source: https://us1.prisma.sh/william-king-4b9a55/school-app/dev
-# timestamp: Mon May 21 2018 09:52:43 GMT-0500 (CDT)
+# source: https://us1.prisma.sh/contact/watchword/dev
+# timestamp: Fri Jun 01 2018 13:54:58 GMT-0500 (CDT)
 
 type AggregateExercise {
   count: Int!
