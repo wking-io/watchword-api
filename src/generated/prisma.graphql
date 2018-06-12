@@ -1,5 +1,5 @@
 # source: https://us1.prisma.sh/contact/watchword/dev
-# timestamp: Fri Jun 01 2018 13:54:58 GMT-0500 (CDT)
+# timestamp: Tue Jun 12 2018 15:44:09 GMT-0500 (CDT)
 
 type AggregateExercise {
   count: Int!
@@ -678,6 +678,8 @@ type User implements Node {
   email: String!
   password: String!
   exercises(where: ExerciseWhereInput, orderBy: ExerciseOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Exercise!]
+  resetToken: String
+  resetExpires: DateTime
 }
 
 """A connection to a list of items."""
@@ -694,6 +696,8 @@ input UserCreateInput {
   name: String!
   email: String!
   password: String!
+  resetToken: String
+  resetExpires: DateTime
   exercises: ExerciseCreateManyWithoutOwnerInput
 }
 
@@ -706,6 +710,8 @@ input UserCreateWithoutExercisesInput {
   name: String!
   email: String!
   password: String!
+  resetToken: String
+  resetExpires: DateTime
 }
 
 """An edge in a connection."""
@@ -726,6 +732,10 @@ enum UserOrderByInput {
   email_DESC
   password_ASC
   password_DESC
+  resetToken_ASC
+  resetToken_DESC
+  resetExpires_ASC
+  resetExpires_DESC
   updatedAt_ASC
   updatedAt_DESC
   createdAt_ASC
@@ -737,6 +747,8 @@ type UserPreviousValues {
   name: String!
   email: String!
   password: String!
+  resetToken: String
+  resetExpires: DateTime
 }
 
 type UserSubscriptionPayload {
@@ -782,6 +794,8 @@ input UserUpdateInput {
   name: String
   email: String
   password: String
+  resetToken: String
+  resetExpires: DateTime
   exercises: ExerciseUpdateManyWithoutOwnerInput
 }
 
@@ -797,6 +811,8 @@ input UserUpdateWithoutExercisesDataInput {
   name: String
   email: String
   password: String
+  resetToken: String
+  resetExpires: DateTime
 }
 
 input UserUpsertWithoutExercisesInput {
@@ -973,6 +989,68 @@ input UserWhereInput {
 
   """All values not ending with the given string."""
   password_not_ends_with: String
+  resetToken: String
+
+  """All values that are not equal to given value."""
+  resetToken_not: String
+
+  """All values that are contained in given list."""
+  resetToken_in: [String!]
+
+  """All values that are not contained in given list."""
+  resetToken_not_in: [String!]
+
+  """All values less than the given value."""
+  resetToken_lt: String
+
+  """All values less than or equal the given value."""
+  resetToken_lte: String
+
+  """All values greater than the given value."""
+  resetToken_gt: String
+
+  """All values greater than or equal the given value."""
+  resetToken_gte: String
+
+  """All values containing the given string."""
+  resetToken_contains: String
+
+  """All values not containing the given string."""
+  resetToken_not_contains: String
+
+  """All values starting with the given string."""
+  resetToken_starts_with: String
+
+  """All values not starting with the given string."""
+  resetToken_not_starts_with: String
+
+  """All values ending with the given string."""
+  resetToken_ends_with: String
+
+  """All values not ending with the given string."""
+  resetToken_not_ends_with: String
+  resetExpires: DateTime
+
+  """All values that are not equal to given value."""
+  resetExpires_not: DateTime
+
+  """All values that are contained in given list."""
+  resetExpires_in: [DateTime!]
+
+  """All values that are not contained in given list."""
+  resetExpires_not_in: [DateTime!]
+
+  """All values less than the given value."""
+  resetExpires_lt: DateTime
+
+  """All values less than or equal the given value."""
+  resetExpires_lte: DateTime
+
+  """All values greater than the given value."""
+  resetExpires_gt: DateTime
+
+  """All values greater than or equal the given value."""
+  resetExpires_gte: DateTime
   exercises_every: ExerciseWhereInput
   exercises_some: ExerciseWhereInput
   exercises_none: ExerciseWhereInput
@@ -981,6 +1059,7 @@ input UserWhereInput {
 input UserWhereUniqueInput {
   id: ID
   email: String
+  resetToken: String
 }
 
 type Word implements Node {

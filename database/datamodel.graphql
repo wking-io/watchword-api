@@ -4,6 +4,8 @@ type User {
   email: String! @unique
   password: String!
   exercises: [Exercise!]!
+  resetToken: String @unique
+  resetExpires: DateTime
 }
 
 type Game {
