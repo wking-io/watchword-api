@@ -17,13 +17,18 @@
     "alias": "watchword-api",
     "env": {
       "PRISMA_ENDPOINT": "@watchword-prisma-endpoint",
-      "APP_SECRET": "@watchword-app-secret"
+      "APP_SECRET": "@watchword-app-secret",
+      "MAIL_HOST": "@watchword-mail-host",
+      "MAIL_PORT": "@watchword-mail-port",
+      "MAIL_USER": "@watchword-mail-user",
+      "MAIL_PASS": "@watchword-mail-pass"
     }
   },
   "dependencies": {
     "bcryptjs": "2.4.3",
     "graphql-yoga": "1.14.6",
     "jsonwebtoken": "8.2.2",
+    "nodemailer": "4.6.6",
     "prisma-binding": "2.0.2"
   },
   "devDependencies": {
