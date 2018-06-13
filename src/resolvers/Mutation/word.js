@@ -1,15 +1,16 @@
 const { getUserId } = require('../../utils');
+const helmet = require('../helmet');
 
-const word = {
-  createWord(_, args, context, info) {
-    const userId = getUserId(context);
-    return context.db.mutation.createWord(
-      {
-        data: args,
-      },
-      info
-    );
-  },
+function createWord(_, args, context, info) {
+  const userId = getUserId(context);
+  return context.db.mutation.createWord(
+    {
+      data: args,
+    },
+    info
+  );
+}
+
+module.exports = {
+  createWord: helmet(createWord),
 };
-
-module.exports = { word };

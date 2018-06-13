@@ -27,7 +27,12 @@ type Mutation {
     ending: String
     vowel: String
   ): Word!
-  signup(name: String!, email: String!, password: String!): AuthPayload
+  signup(
+    name: String!
+    email: String!
+    password: String!
+    confirmPassword: String!
+  ): AuthPayload
   login(email: String!, password: String!): AuthPayload
   recover(email: String!, baseUrl: String!): User
   reset(resetToken: String!, password: String!): User!

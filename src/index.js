@@ -1,6 +1,7 @@
 const { GraphQLServer } = require('graphql-yoga');
 const { Prisma } = require('prisma-binding');
 const resolvers = require('./resolvers');
+const { formatError } = require('apollo-errors');
 
 const db = new Prisma({
   typeDefs: 'src/generated/prisma.graphql', // the auto-generated GraphQL schema of the Prisma API
@@ -20,6 +21,7 @@ const options = {
   endpoint: '/graphql',
   subscriptions: '/subscriptions',
   playground: '/playground',
+  formatError,
 };
 
 server.start(options, ({ port }) =>

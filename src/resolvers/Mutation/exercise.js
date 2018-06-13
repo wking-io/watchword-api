@@ -1,18 +1,20 @@
 const { getUserId } = require('../../utils');
+const helmet = require('../helmet');
 
-const exercise = {
-  createExercise(_, { gameId }, context, info) {
-    const userId = getUserId(context);
-    return context.db.mutation.createExercise(
-      {
-        data: {
-          owner: { connect: { id: userId } },
-          game: { connect: { id: gameId } },
-        },
+async function createExercise(_, { gameId }, context, info) {
+  const userId = getUserId(context);
+  const newExercise = await context.db.mutation.createExercise(
+    {
+      data: {
+        owner: { connect: { id: userId } },
+        game: { connect: { id: gameId } },
       },
-      info
-    );
-  },
-};
+    },
+    info
+  );
+  return newExercise;
+}
 
-module.exports = { exercise };
+module.exports = {
+  createExercise: helmet(createExercise),
+};
