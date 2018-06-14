@@ -59,20 +59,21 @@ async function login(parent, { email, password }, ctx, info) {
   };
 }
 
-async function recover(parent, { email, baseUrl }, ctx, info) {
-  const user = await ctx.db.query.user({ where: { email } });
+async function recover(parent, { email }, { db, request }, info) {
+  const user = await db.query.user({ where: { email } });
   if (!user) {
     throw new UserNotFound({ data: email });
   }
+  const baseUrl = request.get('origin');
   const resetToken = crypto.randomBytes(20).toString('hex') + Date.now();
   const resetExpires = new Date(Date.now() + 360000);
   const resetUrl = `${baseUrl}/reset/${resetToken}`;
-  const updatedUser = await ctx.db.mutation.updateUser(
-    {
+  const updatedUser = Object.assign(
+    user,
+    await db.mutation.updateUser({
       where: { email },
       data: { resetToken, resetExpires },
-    },
-    info
+    })
   );
 
   await mail.send({

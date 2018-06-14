@@ -11,6 +11,7 @@ const transport = nodemailer.createTransport({
 
 const email = {
   async send(options) {
+    console.log('email user ', options);
     const mailOptions = {
       from: 'William King <contact@wking.io>',
       to: options.user.email,

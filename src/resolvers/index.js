@@ -1,6 +1,6 @@
 const { Query } = require('./Query');
 const auth = require('./Mutation/auth');
-const exercise = require('./Mutation/exercise');
+const pattern = require('./Mutation/pattern');
 const game = require('./Mutation/game');
 const word = require('./Mutation/word');
 const AuthPayload = require('./AuthPayload');
@@ -9,7 +9,7 @@ module.exports = {
   Query,
   Mutation: {
     ...auth,
-    ...exercise,
+    ...pattern,
     ...game,
     ...word,
   },

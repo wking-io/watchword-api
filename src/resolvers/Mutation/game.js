@@ -1,14 +1,15 @@
 const { getUserId } = require('../../utils');
 const helmet = require('../helmet');
 
-async function createGame(_, { name, description, slug }, context, info) {
+async function createGame(_, { pattern, games }, context, info) {
   const userId = getUserId(context);
+  const gameIds = games.map(id => ({ id }));
   const newGame = await context.db.mutation.createGame(
     {
       data: {
-        name,
-        description,
-        slug,
+        owner: { connect: { id: userId } },
+        pattern: { connect: { pattern } },
+        games: { connect: gameIds },
       },
     },
     info

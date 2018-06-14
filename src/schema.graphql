@@ -1,7 +1,10 @@
 # import Game from './generated/prisma.graphql'
-# import Exercise from './generated/prisma.graphql'
+# import Pattern from './generated/prisma.graphql'
 # import User from './generated/prisma.graphql'
 # import Word from './generated/prisma.graphql'
+# import PatternType from './generated/prisma.graphql'
+# import FocusType from './generated/prisma.graphql'
+# import Focus from './generated/prisma.graphql'
 
 type Query {
   info: String!
@@ -9,17 +12,32 @@ type Query {
   game(id: ID!): Game
   users: [User!]!
   user(id: ID!): User
-  exercises: [Exercise!]!
-  exercise(id: ID!): Exercise
+  patterns: [Pattern!]!
+  pattern(pattern: PatternType!): Pattern
   words: [Word!]!
   word(id: ID!): Word
 }
 
 type Mutation {
-  createGame(name: String!, description: String!, slug: String!): Game!
-  updateGame(id: ID!, name: String!, description: String!, slug: String!): Game
-  deleteGame(id: ID!): Game
-  createExercise(gameId: String!): Exercise!
+  createPattern(
+    name: String!
+    description: String!
+    pattern: PatternType!
+    focusType: FocusType!
+  ): Pattern!
+  updatePattern(
+    name: String
+    description: String
+    pattern: PatternType
+    focusType: FocusType
+  ): Pattern
+  deletePattern(id: ID!): Pattern
+  createGame(
+    pattern: PatternType!
+    focus: Focus!
+    size: Int!
+    words: [String!]!
+  ): Game!
   createWord(
     word: String!
     group: String!
@@ -34,7 +52,7 @@ type Mutation {
     confirmPassword: String!
   ): AuthPayload
   login(email: String!, password: String!): AuthPayload
-  recover(email: String!, baseUrl: String!): User
+  recover(email: String!): User
   reset(resetToken: String!, password: String!): User!
 }
 
@@ -45,7 +63,9 @@ type AuthPayload {
 
 type User {
   id: ID!
+  createdAt: DateTime!
+  updatedAt: DateTime!
   name: String!
   email: String!
-  exercises: [Exercise!]!
+  games: [Game!]!
 }
