@@ -13,12 +13,9 @@ const {
 } = require('../../errors');
 const helmet = require('../helmet');
 
-async function signup(
-  parent,
-  { name, email, password, confirmPassword },
-  ctx,
-  info
-) {
+async function signup(parent, { input }, ctx, info) {
+  const { email, name, password, confirmPassword } = input;
+
   if (!validator.isEmail(email)) {
     throw new InvalidEmail({ data: { email } });
   }
@@ -31,9 +28,9 @@ async function signup(
     throw new PasswordsNoMatch();
   }
 
-  const hash = await bcrypt.hash(args.password, 10);
+  const hash = await bcrypt.hash(password, 10);
   const user = await ctx.db.mutation.createUser({
-    data: { name, email, password: hash },
+    data: { name, email, password: hash, role: 'Teacher' },
   });
 
   return {
@@ -42,7 +39,8 @@ async function signup(
   };
 }
 
-async function login(parent, { email, password }, ctx, info) {
+async function login(parent, { input }, ctx, info) {
+  const { email, password } = input;
   const user = await ctx.db.query.user({ where: { email } });
   if (!user) {
     throw new UserNotFound({ data: { email } });
@@ -59,7 +57,8 @@ async function login(parent, { email, password }, ctx, info) {
   };
 }
 
-async function recover(parent, { email }, { db, request }, info) {
+async function recover(parent, { input }, { db, request }, info) {
+  const { email } = input;
   const user = await db.query.user({ where: { email } });
   if (!user) {
     throw new UserNotFound({ data: email });
@@ -85,7 +84,8 @@ async function recover(parent, { email }, { db, request }, info) {
   return updatedUser;
 }
 
-async function reset(parent, { resetToken, ...args }, ctx, info) {
+async function reset(parent, { input }, ctx, info) {
+  const { resetToken, password } = input;
   const user = await ctx.db.query.user({
     where: { resetToken },
   });
@@ -97,16 +97,16 @@ async function reset(parent, { resetToken, ...args }, ctx, info) {
     throw new ResetTokenExpired();
   }
 
-  const match = await bcrypt.compare(args.password, user.password);
+  const match = await bcrypt.compare(password, user.password);
   if (match) {
     throw new ResetPasswordsMatch();
   }
 
-  const password = await bcrypt.hash(args.password, 10);
+  const hash = await bcrypt.hash(password, 10);
   const updatedUser = await ctx.db.mutation.updateUser(
     {
       where: { resetToken },
-      data: { password, resetExpires: null },
+      data: { password: hash, resetExpires: null },
     },
     info
   );

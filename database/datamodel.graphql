@@ -8,6 +8,12 @@ type User {
   games: [Game!]!
   resetToken: String @unique
   resetExpires: DateTime
+  role: UserRole!
+}
+
+enum UserRole {
+  Admin
+  Teacher
 }
 
 type Pattern {
@@ -39,8 +45,7 @@ type Game {
   createdAt: DateTime!
   updatedAt: DateTime!
   pattern: Pattern!
-  views: Int! @default(value: 0)
-  completed: Int! @default(value: 0)
+  sessions: [Session!]!
   owner: User!
   focus: Focus!
   size: Int!
@@ -53,6 +58,16 @@ enum Focus {
   Beginning
   Ending
   Vowel
+}
+
+type Session {
+  id: ID! @unique
+  name: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  complete: Boolean!
+  completedAt: DateTime!
+  game: Game!
 }
 
 type Word {

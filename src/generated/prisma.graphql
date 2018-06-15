@@ -1,11 +1,15 @@
 # source: https://us1.prisma.sh/contact/watchword/dev
-# timestamp: Thu Jun 14 2018 14:25:37 GMT-0500 (CDT)
+# timestamp: Thu Jun 14 2018 23:36:00 GMT-0500 (CDT)
 
 type AggregateGame {
   count: Int!
 }
 
 type AggregatePattern {
+  count: Int!
+}
+
+type AggregateSession {
   count: Int!
 }
 
@@ -43,8 +47,7 @@ type Game implements Node {
   createdAt: DateTime!
   updatedAt: DateTime!
   pattern(where: PatternWhereInput): Pattern!
-  views: Int!
-  completed: Int!
+  sessions(where: SessionWhereInput, orderBy: SessionOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Session!]
   owner(where: UserWhereInput): User!
   focus: Focus!
   size: Int!
@@ -62,11 +65,10 @@ type GameConnection {
 }
 
 input GameCreateInput {
-  views: Int
-  completed: Int
   focus: Focus!
   size: Int!
   pattern: PatternCreateOneInput!
+  sessions: SessionCreateManyWithoutGameInput
   owner: UserCreateOneWithoutGamesInput!
   words: WordCreateManyWithoutGamesInput
 }
@@ -81,21 +83,32 @@ input GameCreateManyWithoutWordsInput {
   connect: [GameWhereUniqueInput!]
 }
 
+input GameCreateOneWithoutSessionsInput {
+  create: GameCreateWithoutSessionsInput
+  connect: GameWhereUniqueInput
+}
+
 input GameCreateWithoutOwnerInput {
-  views: Int
-  completed: Int
   focus: Focus!
   size: Int!
   pattern: PatternCreateOneInput!
+  sessions: SessionCreateManyWithoutGameInput
+  words: WordCreateManyWithoutGamesInput
+}
+
+input GameCreateWithoutSessionsInput {
+  focus: Focus!
+  size: Int!
+  pattern: PatternCreateOneInput!
+  owner: UserCreateOneWithoutGamesInput!
   words: WordCreateManyWithoutGamesInput
 }
 
 input GameCreateWithoutWordsInput {
-  views: Int
-  completed: Int
   focus: Focus!
   size: Int!
   pattern: PatternCreateOneInput!
+  sessions: SessionCreateManyWithoutGameInput
   owner: UserCreateOneWithoutGamesInput!
 }
 
@@ -115,10 +128,6 @@ enum GameOrderByInput {
   createdAt_DESC
   updatedAt_ASC
   updatedAt_DESC
-  views_ASC
-  views_DESC
-  completed_ASC
-  completed_DESC
   focus_ASC
   focus_DESC
   size_ASC
@@ -129,8 +138,6 @@ type GamePreviousValues {
   id: ID!
   createdAt: DateTime!
   updatedAt: DateTime!
-  views: Int!
-  completed: Int!
   focus: Focus!
   size: Int!
 }
@@ -175,11 +182,10 @@ input GameSubscriptionWhereInput {
 }
 
 input GameUpdateInput {
-  views: Int
-  completed: Int
   focus: Focus
   size: Int
   pattern: PatternUpdateOneInput
+  sessions: SessionUpdateManyWithoutGameInput
   owner: UserUpdateOneWithoutGamesInput
   words: WordUpdateManyWithoutGamesInput
 }
@@ -202,21 +208,35 @@ input GameUpdateManyWithoutWordsInput {
   upsert: [GameUpsertWithWhereUniqueWithoutWordsInput!]
 }
 
+input GameUpdateOneWithoutSessionsInput {
+  create: GameCreateWithoutSessionsInput
+  connect: GameWhereUniqueInput
+  delete: Boolean
+  update: GameUpdateWithoutSessionsDataInput
+  upsert: GameUpsertWithoutSessionsInput
+}
+
 input GameUpdateWithoutOwnerDataInput {
-  views: Int
-  completed: Int
   focus: Focus
   size: Int
   pattern: PatternUpdateOneInput
+  sessions: SessionUpdateManyWithoutGameInput
+  words: WordUpdateManyWithoutGamesInput
+}
+
+input GameUpdateWithoutSessionsDataInput {
+  focus: Focus
+  size: Int
+  pattern: PatternUpdateOneInput
+  owner: UserUpdateOneWithoutGamesInput
   words: WordUpdateManyWithoutGamesInput
 }
 
 input GameUpdateWithoutWordsDataInput {
-  views: Int
-  completed: Int
   focus: Focus
   size: Int
   pattern: PatternUpdateOneInput
+  sessions: SessionUpdateManyWithoutGameInput
   owner: UserUpdateOneWithoutGamesInput
 }
 
@@ -228,6 +248,11 @@ input GameUpdateWithWhereUniqueWithoutOwnerInput {
 input GameUpdateWithWhereUniqueWithoutWordsInput {
   where: GameWhereUniqueInput!
   data: GameUpdateWithoutWordsDataInput!
+}
+
+input GameUpsertWithoutSessionsInput {
+  update: GameUpdateWithoutSessionsDataInput!
+  create: GameCreateWithoutSessionsInput!
 }
 
 input GameUpsertWithWhereUniqueWithoutOwnerInput {
@@ -335,50 +360,6 @@ input GameWhereInput {
 
   """All values greater than or equal the given value."""
   updatedAt_gte: DateTime
-  views: Int
-
-  """All values that are not equal to given value."""
-  views_not: Int
-
-  """All values that are contained in given list."""
-  views_in: [Int!]
-
-  """All values that are not contained in given list."""
-  views_not_in: [Int!]
-
-  """All values less than the given value."""
-  views_lt: Int
-
-  """All values less than or equal the given value."""
-  views_lte: Int
-
-  """All values greater than the given value."""
-  views_gt: Int
-
-  """All values greater than or equal the given value."""
-  views_gte: Int
-  completed: Int
-
-  """All values that are not equal to given value."""
-  completed_not: Int
-
-  """All values that are contained in given list."""
-  completed_in: [Int!]
-
-  """All values that are not contained in given list."""
-  completed_not_in: [Int!]
-
-  """All values less than the given value."""
-  completed_lt: Int
-
-  """All values less than or equal the given value."""
-  completed_lte: Int
-
-  """All values greater than the given value."""
-  completed_gt: Int
-
-  """All values greater than or equal the given value."""
-  completed_gte: Int
   focus: Focus
 
   """All values that are not equal to given value."""
@@ -412,6 +393,9 @@ input GameWhereInput {
   """All values greater than or equal the given value."""
   size_gte: Int
   pattern: PatternWhereInput
+  sessions_every: SessionWhereInput
+  sessions_some: SessionWhereInput
+  sessions_none: SessionWhereInput
   owner: UserWhereInput
   words_every: WordWhereInput
   words_some: WordWhereInput
@@ -432,26 +416,32 @@ type Mutation {
   createUser(data: UserCreateInput!): User!
   createPattern(data: PatternCreateInput!): Pattern!
   createGame(data: GameCreateInput!): Game!
+  createSession(data: SessionCreateInput!): Session!
   createWord(data: WordCreateInput!): Word!
   updateUser(data: UserUpdateInput!, where: UserWhereUniqueInput!): User
   updatePattern(data: PatternUpdateInput!, where: PatternWhereUniqueInput!): Pattern
   updateGame(data: GameUpdateInput!, where: GameWhereUniqueInput!): Game
+  updateSession(data: SessionUpdateInput!, where: SessionWhereUniqueInput!): Session
   updateWord(data: WordUpdateInput!, where: WordWhereUniqueInput!): Word
   deleteUser(where: UserWhereUniqueInput!): User
   deletePattern(where: PatternWhereUniqueInput!): Pattern
   deleteGame(where: GameWhereUniqueInput!): Game
+  deleteSession(where: SessionWhereUniqueInput!): Session
   deleteWord(where: WordWhereUniqueInput!): Word
   upsertUser(where: UserWhereUniqueInput!, create: UserCreateInput!, update: UserUpdateInput!): User!
   upsertPattern(where: PatternWhereUniqueInput!, create: PatternCreateInput!, update: PatternUpdateInput!): Pattern!
   upsertGame(where: GameWhereUniqueInput!, create: GameCreateInput!, update: GameUpdateInput!): Game!
+  upsertSession(where: SessionWhereUniqueInput!, create: SessionCreateInput!, update: SessionUpdateInput!): Session!
   upsertWord(where: WordWhereUniqueInput!, create: WordCreateInput!, update: WordUpdateInput!): Word!
   updateManyUsers(data: UserUpdateInput!, where: UserWhereInput): BatchPayload!
   updateManyPatterns(data: PatternUpdateInput!, where: PatternWhereInput): BatchPayload!
   updateManyGames(data: GameUpdateInput!, where: GameWhereInput): BatchPayload!
+  updateManySessions(data: SessionUpdateInput!, where: SessionWhereInput): BatchPayload!
   updateManyWords(data: WordUpdateInput!, where: WordWhereInput): BatchPayload!
   deleteManyUsers(where: UserWhereInput): BatchPayload!
   deleteManyPatterns(where: PatternWhereInput): BatchPayload!
   deleteManyGames(where: GameWhereInput): BatchPayload!
+  deleteManySessions(where: SessionWhereInput): BatchPayload!
   deleteManyWords(where: WordWhereInput): BatchPayload!
 }
 
@@ -828,14 +818,17 @@ type Query {
   users(where: UserWhereInput, orderBy: UserOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [User]!
   patterns(where: PatternWhereInput, orderBy: PatternOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Pattern]!
   games(where: GameWhereInput, orderBy: GameOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Game]!
+  sessions(where: SessionWhereInput, orderBy: SessionOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Session]!
   words(where: WordWhereInput, orderBy: WordOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Word]!
   user(where: UserWhereUniqueInput!): User
   pattern(where: PatternWhereUniqueInput!): Pattern
   game(where: GameWhereUniqueInput!): Game
+  session(where: SessionWhereUniqueInput!): Session
   word(where: WordWhereUniqueInput!): Word
   usersConnection(where: UserWhereInput, orderBy: UserOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): UserConnection!
   patternsConnection(where: PatternWhereInput, orderBy: PatternOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): PatternConnection!
   gamesConnection(where: GameWhereInput, orderBy: GameOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): GameConnection!
+  sessionsConnection(where: SessionWhereInput, orderBy: SessionOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): SessionConnection!
   wordsConnection(where: WordWhereInput, orderBy: WordOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): WordConnection!
 
   """Fetches an object given its ID"""
@@ -845,10 +838,320 @@ type Query {
   ): Node
 }
 
+type Session implements Node {
+  id: ID!
+  name: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  complete: Boolean!
+  completedAt: DateTime!
+  game(where: GameWhereInput): Game!
+}
+
+"""A connection to a list of items."""
+type SessionConnection {
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """A list of edges."""
+  edges: [SessionEdge]!
+  aggregate: AggregateSession!
+}
+
+input SessionCreateInput {
+  name: String!
+  complete: Boolean!
+  completedAt: DateTime!
+  game: GameCreateOneWithoutSessionsInput!
+}
+
+input SessionCreateManyWithoutGameInput {
+  create: [SessionCreateWithoutGameInput!]
+  connect: [SessionWhereUniqueInput!]
+}
+
+input SessionCreateWithoutGameInput {
+  name: String!
+  complete: Boolean!
+  completedAt: DateTime!
+}
+
+"""An edge in a connection."""
+type SessionEdge {
+  """The item at the end of the edge."""
+  node: Session!
+
+  """A cursor for use in pagination."""
+  cursor: String!
+}
+
+enum SessionOrderByInput {
+  id_ASC
+  id_DESC
+  name_ASC
+  name_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  complete_ASC
+  complete_DESC
+  completedAt_ASC
+  completedAt_DESC
+}
+
+type SessionPreviousValues {
+  id: ID!
+  name: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  complete: Boolean!
+  completedAt: DateTime!
+}
+
+type SessionSubscriptionPayload {
+  mutation: MutationType!
+  node: Session
+  updatedFields: [String!]
+  previousValues: SessionPreviousValues
+}
+
+input SessionSubscriptionWhereInput {
+  """Logical AND on all given filters."""
+  AND: [SessionSubscriptionWhereInput!]
+
+  """Logical OR on all given filters."""
+  OR: [SessionSubscriptionWhereInput!]
+
+  """Logical NOT on all given filters combined by AND."""
+  NOT: [SessionSubscriptionWhereInput!]
+
+  """
+  The subscription event gets dispatched when it's listed in mutation_in
+  """
+  mutation_in: [MutationType!]
+
+  """
+  The subscription event gets only dispatched when one of the updated fields names is included in this list
+  """
+  updatedFields_contains: String
+
+  """
+  The subscription event gets only dispatched when all of the field names included in this list have been updated
+  """
+  updatedFields_contains_every: [String!]
+
+  """
+  The subscription event gets only dispatched when some of the field names included in this list have been updated
+  """
+  updatedFields_contains_some: [String!]
+  node: SessionWhereInput
+}
+
+input SessionUpdateInput {
+  name: String
+  complete: Boolean
+  completedAt: DateTime
+  game: GameUpdateOneWithoutSessionsInput
+}
+
+input SessionUpdateManyWithoutGameInput {
+  create: [SessionCreateWithoutGameInput!]
+  connect: [SessionWhereUniqueInput!]
+  disconnect: [SessionWhereUniqueInput!]
+  delete: [SessionWhereUniqueInput!]
+  update: [SessionUpdateWithWhereUniqueWithoutGameInput!]
+  upsert: [SessionUpsertWithWhereUniqueWithoutGameInput!]
+}
+
+input SessionUpdateWithoutGameDataInput {
+  name: String
+  complete: Boolean
+  completedAt: DateTime
+}
+
+input SessionUpdateWithWhereUniqueWithoutGameInput {
+  where: SessionWhereUniqueInput!
+  data: SessionUpdateWithoutGameDataInput!
+}
+
+input SessionUpsertWithWhereUniqueWithoutGameInput {
+  where: SessionWhereUniqueInput!
+  update: SessionUpdateWithoutGameDataInput!
+  create: SessionCreateWithoutGameInput!
+}
+
+input SessionWhereInput {
+  """Logical AND on all given filters."""
+  AND: [SessionWhereInput!]
+
+  """Logical OR on all given filters."""
+  OR: [SessionWhereInput!]
+
+  """Logical NOT on all given filters combined by AND."""
+  NOT: [SessionWhereInput!]
+  id: ID
+
+  """All values that are not equal to given value."""
+  id_not: ID
+
+  """All values that are contained in given list."""
+  id_in: [ID!]
+
+  """All values that are not contained in given list."""
+  id_not_in: [ID!]
+
+  """All values less than the given value."""
+  id_lt: ID
+
+  """All values less than or equal the given value."""
+  id_lte: ID
+
+  """All values greater than the given value."""
+  id_gt: ID
+
+  """All values greater than or equal the given value."""
+  id_gte: ID
+
+  """All values containing the given string."""
+  id_contains: ID
+
+  """All values not containing the given string."""
+  id_not_contains: ID
+
+  """All values starting with the given string."""
+  id_starts_with: ID
+
+  """All values not starting with the given string."""
+  id_not_starts_with: ID
+
+  """All values ending with the given string."""
+  id_ends_with: ID
+
+  """All values not ending with the given string."""
+  id_not_ends_with: ID
+  name: String
+
+  """All values that are not equal to given value."""
+  name_not: String
+
+  """All values that are contained in given list."""
+  name_in: [String!]
+
+  """All values that are not contained in given list."""
+  name_not_in: [String!]
+
+  """All values less than the given value."""
+  name_lt: String
+
+  """All values less than or equal the given value."""
+  name_lte: String
+
+  """All values greater than the given value."""
+  name_gt: String
+
+  """All values greater than or equal the given value."""
+  name_gte: String
+
+  """All values containing the given string."""
+  name_contains: String
+
+  """All values not containing the given string."""
+  name_not_contains: String
+
+  """All values starting with the given string."""
+  name_starts_with: String
+
+  """All values not starting with the given string."""
+  name_not_starts_with: String
+
+  """All values ending with the given string."""
+  name_ends_with: String
+
+  """All values not ending with the given string."""
+  name_not_ends_with: String
+  createdAt: DateTime
+
+  """All values that are not equal to given value."""
+  createdAt_not: DateTime
+
+  """All values that are contained in given list."""
+  createdAt_in: [DateTime!]
+
+  """All values that are not contained in given list."""
+  createdAt_not_in: [DateTime!]
+
+  """All values less than the given value."""
+  createdAt_lt: DateTime
+
+  """All values less than or equal the given value."""
+  createdAt_lte: DateTime
+
+  """All values greater than the given value."""
+  createdAt_gt: DateTime
+
+  """All values greater than or equal the given value."""
+  createdAt_gte: DateTime
+  updatedAt: DateTime
+
+  """All values that are not equal to given value."""
+  updatedAt_not: DateTime
+
+  """All values that are contained in given list."""
+  updatedAt_in: [DateTime!]
+
+  """All values that are not contained in given list."""
+  updatedAt_not_in: [DateTime!]
+
+  """All values less than the given value."""
+  updatedAt_lt: DateTime
+
+  """All values less than or equal the given value."""
+  updatedAt_lte: DateTime
+
+  """All values greater than the given value."""
+  updatedAt_gt: DateTime
+
+  """All values greater than or equal the given value."""
+  updatedAt_gte: DateTime
+  complete: Boolean
+
+  """All values that are not equal to given value."""
+  complete_not: Boolean
+  completedAt: DateTime
+
+  """All values that are not equal to given value."""
+  completedAt_not: DateTime
+
+  """All values that are contained in given list."""
+  completedAt_in: [DateTime!]
+
+  """All values that are not contained in given list."""
+  completedAt_not_in: [DateTime!]
+
+  """All values less than the given value."""
+  completedAt_lt: DateTime
+
+  """All values less than or equal the given value."""
+  completedAt_lte: DateTime
+
+  """All values greater than the given value."""
+  completedAt_gt: DateTime
+
+  """All values greater than or equal the given value."""
+  completedAt_gte: DateTime
+  game: GameWhereInput
+}
+
+input SessionWhereUniqueInput {
+  id: ID
+}
+
 type Subscription {
   user(where: UserSubscriptionWhereInput): UserSubscriptionPayload
   pattern(where: PatternSubscriptionWhereInput): PatternSubscriptionPayload
   game(where: GameSubscriptionWhereInput): GameSubscriptionPayload
+  session(where: SessionSubscriptionWhereInput): SessionSubscriptionPayload
   word(where: WordSubscriptionWhereInput): WordSubscriptionPayload
 }
 
@@ -862,6 +1165,7 @@ type User implements Node {
   games(where: GameWhereInput, orderBy: GameOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Game!]
   resetToken: String
   resetExpires: DateTime
+  role: UserRole!
 }
 
 """A connection to a list of items."""
@@ -880,6 +1184,7 @@ input UserCreateInput {
   password: String!
   resetToken: String
   resetExpires: DateTime
+  role: UserRole!
   games: GameCreateManyWithoutOwnerInput
 }
 
@@ -894,6 +1199,7 @@ input UserCreateWithoutGamesInput {
   password: String!
   resetToken: String
   resetExpires: DateTime
+  role: UserRole!
 }
 
 """An edge in a connection."""
@@ -922,6 +1228,8 @@ enum UserOrderByInput {
   resetToken_DESC
   resetExpires_ASC
   resetExpires_DESC
+  role_ASC
+  role_DESC
 }
 
 type UserPreviousValues {
@@ -933,6 +1241,12 @@ type UserPreviousValues {
   password: String!
   resetToken: String
   resetExpires: DateTime
+  role: UserRole!
+}
+
+enum UserRole {
+  Admin
+  Teacher
 }
 
 type UserSubscriptionPayload {
@@ -980,6 +1294,7 @@ input UserUpdateInput {
   password: String
   resetToken: String
   resetExpires: DateTime
+  role: UserRole
   games: GameUpdateManyWithoutOwnerInput
 }
 
@@ -997,6 +1312,7 @@ input UserUpdateWithoutGamesDataInput {
   password: String
   resetToken: String
   resetExpires: DateTime
+  role: UserRole
 }
 
 input UserUpsertWithoutGamesInput {
@@ -1279,6 +1595,16 @@ input UserWhereInput {
 
   """All values greater than or equal the given value."""
   resetExpires_gte: DateTime
+  role: UserRole
+
+  """All values that are not equal to given value."""
+  role_not: UserRole
+
+  """All values that are contained in given list."""
+  role_in: [UserRole!]
+
+  """All values that are not contained in given list."""
+  role_not_in: [UserRole!]
   games_every: GameWhereInput
   games_some: GameWhereInput
   games_none: GameWhereInput

@@ -1,11 +1,11 @@
 const { getUserId } = require('../../utils');
 const helmet = require('../helmet');
 
-function createWord(_, args, context, info) {
+function createWord(_, { input }, context, info) {
   const userId = getUserId(context);
   return context.db.mutation.createWord(
     {
-      data: args,
+      data: input,
     },
     info
   );

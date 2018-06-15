@@ -1,60 +1,47 @@
 # import Game from './generated/prisma.graphql'
 # import Pattern from './generated/prisma.graphql'
+# import Session from './generated/prisma.graphql'
 # import User from './generated/prisma.graphql'
 # import Word from './generated/prisma.graphql'
 # import PatternType from './generated/prisma.graphql'
 # import FocusType from './generated/prisma.graphql'
 # import Focus from './generated/prisma.graphql'
+# import UserRole from './generated/prisma.graphql'
 
 type Query {
-  info: String!
   games: [Game!]!
   game(id: ID!): Game
-  users: [User!]!
-  user(id: ID!): User
   patterns: [Pattern!]!
   pattern(pattern: PatternType!): Pattern
+  sessions(id: ID!): [Session]
+  session(id: ID!): Session
+  users: [User!]!
+  user(id: ID!): User
   words: [Word!]!
   word(id: ID!): Word
 }
 
 type Mutation {
-  createPattern(
-    name: String!
-    description: String!
-    pattern: PatternType!
-    focusType: FocusType!
-  ): Pattern!
-  updatePattern(
-    name: String
-    description: String
-    pattern: PatternType
-    focusType: FocusType
-  ): Pattern
+  createGame(input: GameInput!): Game!
+  createPattern(input: PatternInput!): Pattern!
+  createSession(input: SessionInput!): Session!
+  createWord(input: WordInput!): Word!
+  completeSession(id: ID!): Session!
+  deleteGame(id: ID!): Game
   deletePattern(id: ID!): Pattern
-  createGame(
-    pattern: PatternType!
-    focus: Focus!
-    size: Int!
-    words: [String!]!
-  ): Game!
-  createWord(
-    word: String!
-    group: String!
-    beginning: String!
-    ending: String
-    vowel: String
-  ): Word!
-  signup(
-    name: String!
-    email: String!
-    password: String!
-    confirmPassword: String!
-  ): AuthPayload
-  login(email: String!, password: String!): AuthPayload
-  recover(email: String!): User
-  reset(resetToken: String!, password: String!): User!
+  deleteSession(id: ID!): Session
+  deleteWord(id: ID!): Word
+  login(input: LoginInput!): AuthPayload
+  recover(input: RecoverInput!): User
+  reset(resetToken: String!, input: ResetInput!): User!
+  signup(input: SignupInput!): AuthPayload
+  updateGame(id: ID!, input: GameInput!): Game
+  updatePattern(id: ID!, input: PatternUpdateInput!): Pattern
+  updateSession(id: ID!, input: SessionUpdateInput!): Session
+  updateWord(id: ID!, input: WordUpdateInput!): Word
 }
+
+### TYPES ###
 
 type AuthPayload {
   token: String
@@ -68,4 +55,73 @@ type User {
   name: String!
   email: String!
   games: [Game!]!
+  role: UserRole!
+}
+
+### INPUTS ###
+
+input GameInput {
+  pattern: PatternType!
+  focus: Focus!
+  size: Int!
+  words: [String!]!
+}
+
+input LoginInput {
+  email: String!
+  password: String!
+}
+
+input RecoverInput {
+  email: String!
+}
+
+input ResetInput {
+  password: String!
+}
+
+input PatternInput {
+  name: String!
+  description: String!
+  pattern: PatternType!
+  focusType: FocusType!
+}
+
+input PatternUpdateInput {
+  name: String
+  description: String
+  pattern: PatternType
+  focusType: FocusType
+}
+
+input SessionInput {
+  name: String!
+  gameId: String!
+}
+
+input SessionUpdateInput {
+  name: String
+}
+
+input SignupInput {
+  name: String!
+  email: String!
+  password: String!
+  confirmPassword: String!
+}
+
+input WordInput {
+  word: String!
+  group: String!
+  beginning: String!
+  ending: String!
+  vowel: String!
+}
+
+input WordUpdateInput {
+  word: String
+  group: String
+  beginning: String
+  ending: String
+  vowel: String
 }
