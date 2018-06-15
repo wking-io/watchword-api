@@ -30,6 +30,7 @@ type Mutation {
   deleteGame(id: ID!): Game
   deletePattern(id: ID!): Pattern
   deleteSession(id: ID!): Session
+  deleteUser(id: ID!): User
   deleteWord(id: ID!): Word
   login(input: LoginInput!): AuthPayload
   recover(input: RecoverInput!): User

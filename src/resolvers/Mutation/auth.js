@@ -1,7 +1,7 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
-const validator = require('validator');
+const either = require('data.either');
 const mail = require('../../mail');
 const {
   ResetPasswordsMatch,
@@ -10,58 +10,65 @@ const {
   UserNotFound,
   InvalidPassword,
   InvalidEmail,
+  throwError,
 } = require('../../errors');
 const helmet = require('../helmet');
+const {
+  awaitMap,
+  validateEmail,
+  validatePasswordLength,
+  validateConfirmPassword,
+} = require('../../utils');
 
-async function signup(parent, { input }, ctx, info) {
-  const { email, name, password, confirmPassword } = input;
-
-  if (!validator.isEmail(email)) {
-    throw new InvalidEmail({ data: { email } });
-  }
-
-  if (password.length < 6) {
-    throw new PasswordTooShort();
-  }
-
-  if (!validator.equals(password, confirmPassword)) {
-    throw new PasswordsNoMatch();
-  }
-
-  const hash = await bcrypt.hash(password, 10);
-  const user = await ctx.db.mutation.createUser({
-    data: { name, email, password: hash, role: 'Teacher' },
-  });
-
-  return {
-    token: jwt.sign({ userId: user.id }, process.env.APP_SECRET),
-    user,
-  };
+async function deleteUser(parent, { input }, context, info) {
+  getUserId(context)
+    .map(awaitMap(context.db.mutation.deleteUser, { where: { id } }, info))
+    .leftMap(throwError)
+    .get();
 }
 
-async function login(parent, { input }, ctx, info) {
-  const { email, password } = input;
-  const user = await ctx.db.query.user({ where: { email } });
-  if (!user) {
-    throw new UserNotFound({ data: { email } });
-  }
+async function signup(parent, { input }, context, info) {
+  return either
+    .of(input)
+    .chain(validateEmail)
+    .chain(validatePasswordLength)
+    .chain(validateConfirmPassword)
+    .map(async input => {
+      const hash = await bcrypt.hash(input.password, 10);
+      return Object.assign(input, { password: hash, role: 'Teacher' });
+    })
+    .map(async input => {
+      const user = await context.db.mutation.createUser({ data: input });
+      return {
+        token: jwt.sign({ userId: user.id }, process.env.APP_SECRET),
+        user,
+      };
+    });
+}
 
-  const valid = await bcrypt.compare(password, user.password);
-  if (!valid) {
-    throw new InvalidPassword();
-  }
-
-  return {
-    token: jwt.sign({ userId: user.id }, process.env.APP_SECRET),
-    user,
-  };
+async function login(parent, { input }, context, info) {
+  return either
+    .of(input)
+    .chain(async input => {
+      const user = await context.db.query.user({
+        where: { email: input.email },
+      });
+      const result = await validateUser(input, user);
+      return result;
+    })
+    .map(user => ({
+      token: jwt.sign({ userId: user.id }, process.env.APP_SECRET),
+      user,
+    }))
+    .mapLeft(throwError)
+    .get();
 }
 
 async function recover(parent, { input }, { db, request }, info) {
   const { email } = input;
   const user = await db.query.user({ where: { email } });
   if (!user) {
-    throw new UserNotFound({ data: email });
+    throwError(UserNotFoundm, { data: email });
   }
   const baseUrl = request.get('origin');
   const resetToken = crypto.randomBytes(20).toString('hex') + Date.now();
@@ -84,26 +91,26 @@ async function recover(parent, { input }, { db, request }, info) {
   return updatedUser;
 }
 
-async function reset(parent, { input }, ctx, info) {
+async function reset(parent, { input }, context, info) {
   const { resetToken, password } = input;
-  const user = await ctx.db.query.user({
+  const user = await context.db.query.user({
     where: { resetToken },
   });
   if (!user) {
-    throw new ResetTokenNotFound();
+    throwError(ResetTokenNotFound);
   }
 
   if (user.resetExpires === null || user.resetExpires > Date.now()) {
-    throw new ResetTokenExpired();
+    throwError(ResetTokenExpired);
   }
 
   const match = await bcrypt.compare(password, user.password);
   if (match) {
-    throw new ResetPasswordsMatch();
+    throwError(ResetPasswordsMatch);
   }
 
   const hash = await bcrypt.hash(password, 10);
-  const updatedUser = await ctx.db.mutation.updateUser(
+  const updatedUser = await context.db.mutation.updateUser(
     {
       where: { resetToken },
       data: { password: hash, resetExpires: null },
@@ -115,6 +122,7 @@ async function reset(parent, { input }, ctx, info) {
 }
 
 module.exports = {
+  deleteUser: helmet(deleteUser),
   login: helmet(login),
   signup: helmet(signup),
   recover: helmet(recover),

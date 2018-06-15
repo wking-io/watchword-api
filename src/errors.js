@@ -1,6 +1,9 @@
 const { createError } = require('apollo-errors');
 
 const errors = {
+  throwError([error, data]) {
+    throw new error(data);
+  },
   ResetTokenExpired: createError('ResetTokenExpired', {
     message: 'Your token is expired.',
   }),
