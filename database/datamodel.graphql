@@ -50,6 +50,7 @@ type Game {
   focus: Focus!
   size: Int!
   words: [Word!]!
+  name: String!
 }
 
 enum Focus {
