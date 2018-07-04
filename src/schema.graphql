@@ -30,12 +30,12 @@ type Mutation {
   deleteGame(id: ID!): Game
   deletePattern(id: ID!): Pattern
   deleteSession(id: ID!): Session
-  deleteUser(id: ID!): User
   deleteWord(id: ID!): Word
   login(input: LoginInput!): AuthPayload
   recover(input: RecoverInput!): User
   reset(resetToken: String!, input: ResetInput!): User!
   signup(input: SignupInput!): AuthPayload
+  signout: SuccessMessage!
   updateGame(id: ID!, input: GameInput!): Game
   updatePattern(id: ID!, input: PatternUpdateInput!): Pattern
   updateSession(id: ID!, input: SessionUpdateInput!): Session
@@ -43,6 +43,10 @@ type Mutation {
 }
 
 ### TYPES ###
+
+type SuccessMessage {
+  message: String!
+}
 
 type AuthPayload {
   token: String

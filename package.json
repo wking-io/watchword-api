@@ -21,12 +21,14 @@
       "MAIL_HOST": "@watchword-mail-host",
       "MAIL_PORT": "@watchword-mail-port",
       "MAIL_USER": "@watchword-mail-user",
-      "MAIL_PASS": "@watchword-mail-pass"
+      "MAIL_PASS": "@watchword-mail-pass",
+      "FRONTEND_URL": "@watchword-frontend-url"
     }
   },
   "dependencies": {
     "apollo-errors": "1.9.0",
     "bcryptjs": "2.4.3",
+    "cookie-parser": "1.4.3",
     "data.either": "1.5.1",
     "data.task": "3.1.1",
     "fluture": "8.0.2",
@@ -34,6 +36,7 @@
     "jsonwebtoken": "8.2.2",
     "nodemailer": "4.6.6",
     "prisma-binding": "2.0.2",
+    "ramda": "0.25.0",
     "validator": "10.3.0"
   },
   "devDependencies": {

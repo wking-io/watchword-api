@@ -1,125 +1,117 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
-const either = require('data.either');
-const Future = require('fluture');
+const R = require('ramda');
 const mail = require('../../mail');
 const {
   ResetPasswordsMatch,
   ResetTokenExpired,
   ResetTokenNotFound,
-  UserNotFound,
   InvalidPassword,
-  InvalidEmail,
+  NotAuthorizedToDelete,
   throwError,
 } = require('../../errors');
 const helmet = require('../helmet');
 const {
-  awaitMap,
-  validateEmail,
-  validatePasswordLength,
-  validateConfirmPassword,
-  validateUser,
+  validate,
+  sanitizeEmail,
+  setCookie,
+  clearCookie,
+  findUser,
 } = require('../../utils');
 
-function deleteUser(parent, { input }, context, info) {
-  const deleteUser = Future.encaseP(context.db.mutation.deleteUser);
-  return getUserId(context).chain(id => deleteUser({ where: { id } }, info));
+async function signup(parent, args, ctx, info) {
+  const input = await R.compose(
+    hash,
+    validate.passwordConfirm,
+    validate.passwordLength,
+    validate.email,
+    sanitizeEmail
+  )(args.input);
+
+  const user = await ctx.db.mutation.createUser(
+    {
+      data: {
+        ...input,
+        role: 'Teacher',
+      },
+    },
+    info
+  );
+
+  return setCookie(ctx.response.cookie, { userId: user.id });
 }
 
-function signup(parent, { input }, context, info) {
-  const hash = Future.encaseN2(bcrypt.hash);
-  const createUser = Future.encaseP(context.db.mutation.createUser);
-
-  return validateEmail(input)
-    .chain(validatePasswordLength)
-    .chain(validateConfirmPassword)
-    .chain(i => hash(i.password, 10))
-    .map(hash => Object.assign(input, { password: hash, role: 'Teacher' }))
-    .chain(i => context.db.mutation.createUser({ data: i }))
-    .map(user => ({
-      token: jwt.sign({ userId: user.id }, process.env.APP_SECRET),
-      user,
-    }));
+async function signout(parent, args, ctx, info) {
+  return clearCookie('token');
 }
 
-function login(parent, { input }, context, info) {
-  const getUser = Future.encaseP(context.db.query.user);
+async function login(parent, { input }, ctx, info) {
+  const user = await findUser(ctx.db.query.user, { email: input.email });
+  const valid = await bcrypt.compare(input.password, user.password);
 
-  return getUser({
-    where: { email: input.email },
-  })
-    .map(user => [input, user])
-    .chain(validateUser)
-    .map(user => {
-      return {
-        token: jwt.sign({ userId: user.id }, process.env.APP_SECRET),
-        user,
-      };
-    });
+  if (!valid) {
+    throwError([InvalidPassword, {}]);
+  }
+
+  return { user, token: setCookie(ctx, { userId: user.id }) };
 }
 
-function recover(parent, { input }, { db, request }, info) {
-  const { email } = input;
-  const user = Future.encaseP(db.query.user);
-  const updateUser = Future.encaseP(db.mutation.updateUser);
+async function recover(parent, { input }, ctx, info) {
+  const user = await findUser(ctx.db.query.users, { email: input.email });
 
-  const baseUrl = request.get('origin');
   const resetToken = crypto.randomBytes(20).toString('hex') + Date.now();
   const resetExpires = new Date(Date.now() + 360000);
-  const resetUrl = `${baseUrl}/reset/${resetToken}`;
 
-  return user({ where: { email } })
-    .mapRej([UserNotFound, { data: email }])
-    .chain(u =>
-      updateUser({
-        where: { email: u.email },
-        data: { resetToken, resetExpires },
-      })
-    )
-    .map(u => {
-      mail.send({
-        user: u,
-        subject: 'Password Reset - WatchWord',
-        resetUrl,
-      });
-      return u;
-    });
+  const result = await ctx.db.mutation.updateUser({
+    where: { email: input.email },
+    data: { resetToken, resetExpires },
+  });
+
+  const mailResult = await mail.send({
+    user,
+    subject: 'Password Reset - WatchWord',
+    message: `You can reset your password here: <a href="${
+      process.env.FRONTEND_URL
+    }/reset/${resetToken}">Reset Password</a>`,
+  });
+
+  return result;
 }
 
-function reset(parent, { input }, context, info) {
-  const { resetToken, password } = input;
-  const user = Future.encaseP(context.db.query.user);
-  const updateUser = Future.encaseP(context.db.mutation.updateUser);
-  const compare = Future.encaseN2(bcrypt.compare);
-  const hash = Future.encaseN2(bcrypt.hash);
+async function reset(parent, args, ctx, info) {
+  const input = await R.compose(
+    hash,
+    validate.passwordConfirm,
+    validate.passwordLength
+  )(args.input);
 
-  return user({ where: { resetToken } })
-    .mapRej([ResetTokenNotFound, {}])
-    .chain(u => {
-      if (user.resetExpires === null || user.resetExpires > Date.now()) {
-        return Future.reject([ResetTokenExpired, {}]);
-      }
-      return Future.of(u);
-    })
-    .chain(u => compare(password, u.password))
-    .mapRej([ResetPasswordsMatch, {}])
-    .chain(hash(password, 10))
-    .chain(hashed =>
-      updateUser(
-        {
-          where: { resetToken },
-          data: { password: hashed, resetExpires: null },
-        },
-        info
-      )
-    );
+  const [user] = await ctx.db.query.users({
+    where: {
+      resetToken: args.input.resetToken,
+      resetExpires_gte: Date.now() - 3600000, // within the last hour
+    },
+  });
+
+  if (!user) {
+    throwError([ResetTokenNotFound, {}]);
+  }
+
+  const updatedUser = await ctx.db.mutation.updateUser({
+    where: { email: user.email },
+    data: {
+      ...input,
+      resetExpires: null,
+    },
+  });
+
+  return setCookie(ctx, { userId: updateUser.id });
 }
 
 module.exports = {
-  deleteUser: helmet(deleteUser),
   login: helmet(login),
   signup: helmet(signup),
+  signout: helmet(signout),
   recover: helmet(recover),
   reset: helmet(reset),
 };

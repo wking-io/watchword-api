@@ -4,14 +4,11 @@ const errors = {
   throwError([error, data]) {
     throw new error(data);
   },
-  ResetTokenExpired: createError('ResetTokenExpired', {
-    message: 'Your token is expired.',
-  }),
   ResetPasswordsMatch: createError('ResetPasswordsMatch', {
     message: 'New password is the same as old password.',
   }),
   ResetTokenNotFound: createError('ResetTokenNotFound', {
-    message: 'Reset token not found.',
+    message: 'Reset token from the last hour not found for this account.',
   }),
   UserNotFound: createError('UserNotFound', {
     message: 'User with that email not found.',
@@ -33,6 +30,14 @@ const errors = {
   }),
   PasswordTooShort: createError('PasswordTooShort', {
     message: 'Password must be at least 6 characters long',
+  }),
+  JwtFailedToVerify: (name, message) => createError(name, { message }),
+  NotAuthorizedToDelete: x =>
+    createError('NotAuthorizedToDelete', {
+      message: `Your account is not authorized to delete this ${x}.`,
+    }),
+  NoPropFound: createError('NoPropFound', {
+    message: 'No property with that name was found on the object.',
   }),
 };
 

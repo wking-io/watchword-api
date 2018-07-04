@@ -1,84 +1,135 @@
 const jwt = require('jsonwebtoken');
-const either = require('data.either');
-const Future = require('fluture');
 const validator = require('validator');
 const bcrypt = require('bcryptjs');
+const R = require('ramda');
 const {
   InvalidEmail,
   InvalidPassword,
   PasswordTooShort,
   PasswordsNoMatch,
+  JwtFailedToVerify,
   NotAuthorized,
+  NoPropFound,
+  throwError,
 } = require('./errors');
 
-function fromNullable(check) {
-  if (check === null) {
-    return Future.reject('Is null.');
-  }
+async function findUser(find, by) {
+  const user = await find({ where: by });
 
-  return Future.of(check);
-}
-function getUserId({ request }) {
-  return fromNullable(request.get('Authorization'))
-    .map(removeBearer)
-    .chain(verifyToken)
-    .map(getId)
-    .mapRej(_ => [NotAuthorized, {}]);
-}
-
-function removeBearer(auth) {
-  return auth.replace('Bearer ', '');
-}
-
-function verifyToken(auth) {
-  try {
-    var token = jwt.verify(auth, process.env.APP_SECRET);
-  } catch (e) {
-    return Future.reject('Failed parsing JWT.');
-  }
-  return Future.of(token);
-}
-
-function getId({ id }) {
-  return id;
-}
-
-function validateEmail(input) {
-  if (!validator.isEmail(input.email)) {
-    return Future.reject([InvalidEmail, { data: { email: input.email } }]);
-  }
-  return Future.of(input);
-}
-
-function validatePasswordLength(input) {
-  if (input.password.length < 6) {
-    return Future.reject([PasswordTooShort, {}]);
-  }
-  return Future.of(input);
-}
-
-function validateConfirmPassword(input) {
-  if (!validator.equals(input.password, input.confirmPassword)) {
-    return Future.reject([PasswordsNoMatch, {}]);
-  }
-  return Future.of(input);
-}
-
-function validateUser([input, user]) {
   if (!user) {
-    return Future.reject([UserNotFound, { data: { email } }]);
+    throwError([UserNotFound, { data: { id } }]);
   }
 
-  const compare = Future.encaseN2(bcrypt.compare);
-  return compare(input.password, user.password)
-    .mapRej(_ => [InvalidPassword, {}])
-    .map(_ => user);
+  return user;
+}
+
+const fromNullable = R.curry((err, f) =>
+  R.compose(
+    R.ifElse(R.isNil, R.always(throwError(err)), R.identity),
+    f
+  )
+);
+
+const safeProp = R.curry((key, obj) =>
+  fromNullable(
+    [
+      NoPropFound,
+      {
+        data: {
+          propery: key,
+          object: obj,
+        },
+      },
+    ],
+    R.prop(key),
+    obj
+  )
+);
+
+function verifyToken(token) {
+  try {
+    token = jwt.verify(token, process.env.APP_SECRET);
+  } catch (err) {
+    throwError(JwtFailedToVerify(err.name, err.message));
+  }
+
+  return token;
+}
+
+function sanitizeEmail(input) {
+  return Object.assign(input, { email: input.email.toLowerCase() });
+}
+
+async function hash(input) {
+  const password = await bcrypt.hash(input.password, 10);
+  return;
+}
+
+const validate = {
+  email(input) {
+    if (!validator.isEmail(input.email)) {
+      throwError([InvalidEmail, { data: { email: input.email } }]);
+    }
+    return input;
+  },
+
+  passwordLength(input) {
+    if (input.password.length < 6) {
+      throwError([PasswordTooShort, {}]);
+    }
+    return input;
+  },
+
+  passwordConfirm(input) {
+    if (!validator.equals(input.password, input.confirmPassword)) {
+      throwError([PasswordsNoMatch, {}]);
+    }
+    return input;
+  },
+};
+
+async function checkPassword([input, user]) {
+  const matches = await bcrypt.compare(input.password, user.password);
+
+  if (!matches) {
+    throwError([InvalidPassword, {}]);
+  }
+
+  return user;
+}
+
+function ifLoggedIn(fn) {
+  return function ifLoggedInner(parent, args, ctx, info) {
+    if (!ctx.request.userId) throwError([NotAuthorized, {}]);
+
+    return fn(parent, args, ctx, info);
+  };
+}
+
+function setCookie(ctx, data) {
+  const token = jwt.sign(data, process.env.APP_SECRET);
+  ctx.response.cookie('token', token, {
+    maxAge: 1000 * 60 * 60 * 24 * 365,
+    http: true,
+  });
+  return token;
+}
+
+function clearCookie(clear, name) {
+  clear(name);
+  return { message: 'Goodbye!' };
 }
 
 module.exports = {
-  getUserId,
-  validateEmail,
-  validatePasswordLength,
-  validateConfirmPassword,
-  validateUser,
+  verifyToken,
+  validate,
+  sanitizeEmail,
+  hash,
+  checkPassword,
+  findUser,
+  fromNullable,
+  safeProp,
+  ifLoggedIn,
+  setCookie,
+  clearCookie,
 };

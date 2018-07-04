@@ -9,6 +9,19 @@ const transport = nodemailer.createTransport({
   },
 });
 
+const mailTemplate = text => `
+  <div className="email" style="
+    border:1px solid black;
+    padding: 20px;
+    font-family: sans-serif;
+    line-height: 2;
+    font-size: 20px;
+  ">
+    <h2>Hello There</h2>
+    <p>${text}</p>
+    <p>👋 Will King</p>
+  </div>`;
+
 const email = {
   async send(options) {
     console.log('email user ', options);
@@ -16,10 +29,7 @@ const email = {
       from: 'William King <contact@wking.io>',
       to: options.user.email,
       subject: options.subject,
-      html: `Hey, you can reset you password here: <a href="${
-        options.resetUrl
-      }">Reset Password</a>`,
-      text: `Hey, you can reset you password here: ${options.resetUrl}`,
+      html: mailTemplate(options.message),
     };
 
     return transport.sendMail(mailOptions);
