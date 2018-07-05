@@ -20,32 +20,6 @@ const {
   findUser,
 } = require('../../utils');
 
-async function signup(parent, args, ctx, info) {
-  const input = await R.compose(
-    hash,
-    validate.passwordConfirm,
-    validate.passwordLength,
-    validate.email,
-    sanitizeEmail
-  )(args.input);
-
-  const user = await ctx.db.mutation.createUser(
-    {
-      data: {
-        ...input,
-        role: 'Teacher',
-      },
-    },
-    info
-  );
-
-  return setCookie(ctx.response.cookie, { userId: user.id });
-}
-
-async function signout(parent, args, ctx, info) {
-  return clearCookie('token');
-}
-
 async function login(parent, { input }, ctx, info) {
   const user = await findUser(ctx.db.query.user, { email: input.email });
   const valid = await bcrypt.compare(input.password, user.password);
@@ -54,7 +28,7 @@ async function login(parent, { input }, ctx, info) {
     throwError([InvalidPassword, {}]);
   }
 
-  return { user, token: setCookie(ctx, { userId: user.id }) };
+  return { user, token: jwt.sign({ userId: user.id }, process.env.APP_SECRET) };
 }
 
 async function recover(parent, { input }, ctx, info) {
@@ -105,13 +79,37 @@ async function reset(parent, args, ctx, info) {
     },
   });
 
-  return setCookie(ctx, { userId: updateUser.id });
+  return {
+    updatedUser,
+    token: jwt.sign({ userId: updatedUser.id }, process.env.APP_SECRET),
+  };
+}
+
+async function signup(parent, args, ctx, info) {
+  const input = await R.compose(
+    hash,
+    validate.passwordConfirm,
+    validate.passwordLength,
+    validate.email,
+    sanitizeEmail
+  )(args.input);
+
+  const user = await ctx.db.mutation.createUser(
+    {
+      data: {
+        ...input,
+        role: 'Teacher',
+      },
+    },
+    info
+  );
+
+  return { user, token: jwt.sign({ userId: user.id }, process.env.APP_SECRET) };
 }
 
 module.exports = {
   login: helmet(login),
-  signup: helmet(signup),
-  signout: helmet(signout),
   recover: helmet(recover),
   reset: helmet(reset),
+  signup: helmet(signup),
 };

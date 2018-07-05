@@ -19,8 +19,12 @@ const errors = {
   InvalidEmail: createError('InvalidEmail', {
     message: 'Email is not a valid email address.',
   }),
+  NotLoggedIn: createError('NotLoggedIn', {
+    message:
+      'It seems you are not logged in and therefore do not have access to this.',
+  }),
   NotAuthorized: createError('NotAuthorized', {
-    message: 'Your account is not authorized to view this content.',
+    message: 'Your account does not have the right permissions to do this.',
   }),
   FatalError: createError('FatalError', {
     message: 'Fatal error from Prisma API.',

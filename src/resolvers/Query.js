@@ -1,15 +1,25 @@
 const { forwardTo } = require('prisma-binding');
 const { hasPermission, ifLoggedIn } = require('../utils');
+const { throwError, NotAuthorized } = require('../errors');
 const helmet = require('./helmet');
-
-const words = forwardTo('db');
-const patterns = forwardTo('db');
 
 async function games(parent, args, ctx, info) {
   return ctx.db.query.games(
     { where: { owner: { id: ctx.request.userId } } },
     info
   );
+}
+async function game(parent, { id }, ctx, info) {
+  return ctx.db.query.game({ where: { id } }, info);
+}
+
+async function me(parent, args, ctx, info) {
+  return ctx.db.query.user({ where: { id: ctx.request.userId } }, info);
+}
+
+const patterns = forwardTo('db');
+async function pattern(parent, { pattern }, ctx, info) {
+  return ctx.db.query.pattern({ where: { pattern } }, info);
 }
 
 async function sessions(parent, args, ctx, info) {
@@ -19,11 +29,46 @@ async function sessions(parent, args, ctx, info) {
   );
 }
 
+async function session(parent, args, ctx, info) {
+  return ctx.db.query.session(
+    { where: { game: { owner: { id: ctx.request.userId } } } },
+    info
+  );
+}
+
+async function users(parent, args, ctx, info) {
+  if (!hasPermission(ctx.request.user, ['Admin'])) {
+    throwError([NotAuthorized, {}]);
+  }
+
+  return ctx.db.query.users({}, info);
+}
+
+async function user(parent, { id }, ctx, info) {
+  if (!hasPermission(ctx.request.user, ['Admin'])) {
+    throwError([NotAuthorized, {}]);
+  }
+
+  return ctx.db.query.users({ where: { id } }, info);
+}
+
+const words = forwardTo('db');
+async function word(parent, { id }, ctx, info) {
+  return ctx.db.query.word({ where: { id } }, info);
+}
+
 const Query = {
-  words: helmet(ifLoggedIn(words)),
-  patterns: helmet(ifLoggedIn(patterns)),
   games: helmet(ifLoggedIn(games)),
+  game: helmet(game),
+  me: helmet(ifLoggedIn(me)),
+  patterns: helmet(ifLoggedIn(patterns)),
+  pattern: helmet(ifLoggedIn(pattern)),
   sessions: helmet(ifLoggedIn(sessions)),
+  session: helmet(ifLoggedIn(session)),
+  users: helmet(ifLoggedIn(users)),
+  user: helmet(ifLoggedIn(user)),
+  words: helmet(ifLoggedIn(words)),
+  word: helmet(ifLoggedIn(word)),
 };
 
 module.exports = { Query };

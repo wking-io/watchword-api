@@ -9,15 +9,16 @@
 # import UserRole from './generated/prisma.graphql'
 
 type Query {
-  games: [Game!]!
+  games: [Game]!
   game(id: ID!): Game
-  patterns: [Pattern!]!
+  me: User
+  patterns: [Pattern]!
   pattern(pattern: PatternType!): Pattern
-  sessions(id: ID!): [Session]
+  sessions(id: ID!): [Session]!
   session(id: ID!): Session
-  users: [User!]!
+  users: [User]!
   user(id: ID!): User
-  words: [Word!]!
+  words: [Word]!
   word(id: ID!): Word
 }
 
@@ -35,7 +36,6 @@ type Mutation {
   recover(input: RecoverInput!): User
   reset(resetToken: String!, input: ResetInput!): User!
   signup(input: SignupInput!): AuthPayload
-  signout: SuccessMessage!
   updateGame(id: ID!, input: GameInput!): Game
   updatePattern(id: ID!, input: PatternUpdateInput!): Pattern
   updateSession(id: ID!, input: SessionUpdateInput!): Session

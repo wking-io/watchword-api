@@ -4,21 +4,19 @@ const createServer = require('./createServer');
 const db = require('./db');
 const cookieParser = require('cookie-parser');
 const R = require('ramda');
-const { verifyToken, safeProp, findUser } = require('./utils');
+const { getToken, verifyToken, safeProp, findUser, log } = require('./utils');
 
 const server = createServer();
 
 server.express.use(cookieParser());
 
 server.express.use((req, res, next) => {
-  const { token } = req.cookies;
-  if (token) {
-    req.userId = R.compose(
-      safeProp('userId'),
-      verifyToken
-    )(token);
+  const token = getToken(req);
+  if (R.not(R.isEmpty(token))) {
+    const user = verifyToken(token);
+    req.userId = safeProp('userId', user);
   }
-  next();
+  return next();
 });
 
 server.express.use(async (req, res, next) => {

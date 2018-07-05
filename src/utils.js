@@ -8,6 +8,7 @@ const {
   PasswordTooShort,
   PasswordsNoMatch,
   JwtFailedToVerify,
+  NotLoggedIn,
   NotAuthorized,
   NoPropFound,
   throwError,
@@ -23,12 +24,13 @@ async function findUser(find, by) {
   return user;
 }
 
-const fromNullable = R.curry((err, f) =>
-  R.compose(
-    R.ifElse(R.isNil, R.always(throwError(err)), R.identity),
-    f
-  )
-);
+const fromNullable = R.curry((err, f, x) => {
+  const result = f(x);
+  if (R.isNil(result)) {
+    throwError(err);
+  }
+  return result;
+});
 
 const safeProp = R.curry((key, obj) =>
   fromNullable(
@@ -46,14 +48,16 @@ const safeProp = R.curry((key, obj) =>
   )
 );
 
+function getToken(req) {
+  return (req.get('Authorization') || '').replace('Bearer ', '');
+}
+
 function verifyToken(token) {
   try {
-    token = jwt.verify(token, process.env.APP_SECRET);
+    return jwt.verify(token, process.env.APP_SECRET);
   } catch (err) {
     throwError(JwtFailedToVerify(err.name, err.message));
   }
-
-  return token;
 }
 
 function sanitizeEmail(input) {
@@ -100,27 +104,28 @@ async function checkPassword([input, user]) {
 
 function ifLoggedIn(fn) {
   return function ifLoggedInner(parent, args, ctx, info) {
-    if (!ctx.request.userId) throwError([NotAuthorized, {}]);
+    if (!ctx.request.userId) throwError([NotLoggedIn, {}]);
 
     return fn(parent, args, ctx, info);
   };
 }
 
-function setCookie(ctx, data) {
-  const token = jwt.sign(data, process.env.APP_SECRET);
-  ctx.response.cookie('token', token, {
-    maxAge: 1000 * 60 * 60 * 24 * 365,
-    http: true,
-  });
-  return token;
+function hasPermission(user, needed) {
+  const matched = user.permissions.filter(have => needed.includes(have));
+  if (matched.length > 0) {
+    return true;
+  }
+
+  return false;
 }
 
-function clearCookie(clear, name) {
-  clear(name);
-  return { message: 'Goodbye!' };
+function log(x) {
+  console.log(`Check it -> ${x}`);
+  return x;
 }
 
 module.exports = {
+  getToken,
   verifyToken,
   validate,
   sanitizeEmail,
@@ -130,6 +135,6 @@ module.exports = {
   fromNullable,
   safeProp,
   ifLoggedIn,
-  setCookie,
-  clearCookie,
+  hasPermission,
+  log,
 };
