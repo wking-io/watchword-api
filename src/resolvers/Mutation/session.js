@@ -1,59 +1,75 @@
-const { getUserId, awaitMap } = require('../../utils');
+const { ifLoggedIn, hasPermission } = require('../../utils');
 const helmet = require('../helmet');
-const { throwError } = require('../../errors');
+const {
+  throwError,
+  NotAuthorized,
+  NotAuthorizedToDelete,
+} = require('../../errors');
 
-async function createSession(_, { input }, context, info) {
-  return getUserId(context)
-    .map(awaitMap(context.db.mutation.createSession, { data: input }, info))
-    .leftMap(throwError)
-    .get();
-}
-
-async function completeSession(_, { id }, context, info) {
-  return getUserId(context)
-    .map(
-      awaitMap(
-        context.db.mutation.updateSession,
-        {
-          where: { id },
-          data: {
-            complete: true,
-            completedAt: Date.now(),
-          },
+async function createSession(parent, { input }, context, info) {
+  return ctx.db.mutation.createSession({
+    data: {
+      game: {
+        connect: {
+          id: input.gameId,
         },
-        info
-      )
-    )
-    .leftMap(throwError)
-    .get();
+      },
+      name: input.name,
+      complete: false,
+    },
+  });
 }
 
-async function deleteSession(_, { id }, context, info) {
-  return getUserId(context)
-    .map(awaitMap(context.db.mutation.deleteSession, { where: { id } }, info))
-    .leftMap(throwError)
-    .get();
+async function completeSession(parent, { id }, ctx, info) {
+  return ctx.db.mutation.updateSession(
+    {
+      where: { id },
+      data: {
+        complete: true,
+        completedAt: Date.now(),
+      },
+    },
+    info
+  );
 }
 
-async function updateSession(_, { id, input }, context, info) {
-  return getUserId(context)
-    .map(
-      awaitMap(
-        context.db.mutation.updateSession,
-        {
-          where: { id },
-          data: input,
-        },
-        info
-      )
-    )
-    .leftMap(throwError)
-    .get();
+async function updateSession(parent, { id, input }, ctx, info) {
+  const where = { id };
+  const session = ctx.db.query.session({ where }, `game { owner { id } }`);
+
+  if (
+    session.game.owner.id !== ctx.request.userId ||
+    !hasPermission(ctx.request.user, ['Admin'])
+  ) {
+    throwError([NotAuthorized, {}]);
+  }
+
+  return context.db.mutation.updateSession(
+    {
+      where,
+      data: input,
+    },
+    info
+  );
+}
+
+async function deleteSession(parent, { id }, ctx, info) {
+  const where = { id };
+  const session = ctx.db.query.session({ where }, `game { owner { id } }`);
+
+  if (
+    session.game.owner.id !== ctx.request.userId ||
+    !hasPermission(ctx.request.user, ['Admin'])
+  ) {
+    throwError([NotAuthorizedToDelete('session'), {}]);
+  }
+
+  return ctx.db.mutation.deleteSession({ where }, info);
 }
 
 module.exports = {
   createSession: helmet(createSession),
   completeSession: helmet(completeSession),
-  deleteSession: helmet(deleteSession),
-  updateSession: helmet(updateSession),
+  deleteSession: helmet(isLoggedIn(deleteSession)),
+  updateSession: helmet(isLoggedIn(updateSession)),
 };

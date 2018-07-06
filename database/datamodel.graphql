@@ -24,6 +24,7 @@ type Pattern {
   description: String!
   pattern: PatternType! @unique
   focusType: FocusType!
+  games: [Game!]!
 }
 
 enum PatternType {

@@ -34,7 +34,7 @@ type Mutation {
   deleteWord(id: ID!): Word
   login(input: LoginInput!): AuthPayload
   recover(input: RecoverInput!): User
-  reset(resetToken: String!, input: ResetInput!): User!
+  reset(resetToken: String!, input: ResetInput!): AuthPayload!
   signup(input: SignupInput!): AuthPayload
   updateGame(id: ID!, input: GameInput!): Game
   updatePattern(id: ID!, input: PatternUpdateInput!): Pattern

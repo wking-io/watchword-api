@@ -1,5 +1,5 @@
 # source: https://us1.prisma.sh/contact/watchword/dev
-# timestamp: Wed Jun 27 2018 08:52:46 GMT-0500 (CDT)
+# timestamp: Fri Jul 06 2018 07:52:06 GMT-0500 (CDT)
 
 type AggregateGame {
   count: Int!
@@ -69,7 +69,7 @@ input GameCreateInput {
   focus: Focus!
   size: Int!
   name: String!
-  pattern: PatternCreateOneInput!
+  pattern: PatternCreateOneWithoutGamesInput!
   sessions: SessionCreateManyWithoutGameInput
   owner: UserCreateOneWithoutGamesInput!
   words: WordCreateManyWithoutGamesInput
@@ -77,6 +77,11 @@ input GameCreateInput {
 
 input GameCreateManyWithoutOwnerInput {
   create: [GameCreateWithoutOwnerInput!]
+  connect: [GameWhereUniqueInput!]
+}
+
+input GameCreateManyWithoutPatternInput {
+  create: [GameCreateWithoutPatternInput!]
   connect: [GameWhereUniqueInput!]
 }
 
@@ -94,8 +99,17 @@ input GameCreateWithoutOwnerInput {
   focus: Focus!
   size: Int!
   name: String!
-  pattern: PatternCreateOneInput!
+  pattern: PatternCreateOneWithoutGamesInput!
   sessions: SessionCreateManyWithoutGameInput
+  words: WordCreateManyWithoutGamesInput
+}
+
+input GameCreateWithoutPatternInput {
+  focus: Focus!
+  size: Int!
+  name: String!
+  sessions: SessionCreateManyWithoutGameInput
+  owner: UserCreateOneWithoutGamesInput!
   words: WordCreateManyWithoutGamesInput
 }
 
@@ -103,7 +117,7 @@ input GameCreateWithoutSessionsInput {
   focus: Focus!
   size: Int!
   name: String!
-  pattern: PatternCreateOneInput!
+  pattern: PatternCreateOneWithoutGamesInput!
   owner: UserCreateOneWithoutGamesInput!
   words: WordCreateManyWithoutGamesInput
 }
@@ -112,7 +126,7 @@ input GameCreateWithoutWordsInput {
   focus: Focus!
   size: Int!
   name: String!
-  pattern: PatternCreateOneInput!
+  pattern: PatternCreateOneWithoutGamesInput!
   sessions: SessionCreateManyWithoutGameInput
   owner: UserCreateOneWithoutGamesInput!
 }
@@ -193,7 +207,7 @@ input GameUpdateInput {
   focus: Focus
   size: Int
   name: String
-  pattern: PatternUpdateOneInput
+  pattern: PatternUpdateOneWithoutGamesInput
   sessions: SessionUpdateManyWithoutGameInput
   owner: UserUpdateOneWithoutGamesInput
   words: WordUpdateManyWithoutGamesInput
@@ -206,6 +220,15 @@ input GameUpdateManyWithoutOwnerInput {
   delete: [GameWhereUniqueInput!]
   update: [GameUpdateWithWhereUniqueWithoutOwnerInput!]
   upsert: [GameUpsertWithWhereUniqueWithoutOwnerInput!]
+}
+
+input GameUpdateManyWithoutPatternInput {
+  create: [GameCreateWithoutPatternInput!]
+  connect: [GameWhereUniqueInput!]
+  disconnect: [GameWhereUniqueInput!]
+  delete: [GameWhereUniqueInput!]
+  update: [GameUpdateWithWhereUniqueWithoutPatternInput!]
+  upsert: [GameUpsertWithWhereUniqueWithoutPatternInput!]
 }
 
 input GameUpdateManyWithoutWordsInput {
@@ -229,8 +252,17 @@ input GameUpdateWithoutOwnerDataInput {
   focus: Focus
   size: Int
   name: String
-  pattern: PatternUpdateOneInput
+  pattern: PatternUpdateOneWithoutGamesInput
   sessions: SessionUpdateManyWithoutGameInput
+  words: WordUpdateManyWithoutGamesInput
+}
+
+input GameUpdateWithoutPatternDataInput {
+  focus: Focus
+  size: Int
+  name: String
+  sessions: SessionUpdateManyWithoutGameInput
+  owner: UserUpdateOneWithoutGamesInput
   words: WordUpdateManyWithoutGamesInput
 }
 
@@ -238,7 +270,7 @@ input GameUpdateWithoutSessionsDataInput {
   focus: Focus
   size: Int
   name: String
-  pattern: PatternUpdateOneInput
+  pattern: PatternUpdateOneWithoutGamesInput
   owner: UserUpdateOneWithoutGamesInput
   words: WordUpdateManyWithoutGamesInput
 }
@@ -247,7 +279,7 @@ input GameUpdateWithoutWordsDataInput {
   focus: Focus
   size: Int
   name: String
-  pattern: PatternUpdateOneInput
+  pattern: PatternUpdateOneWithoutGamesInput
   sessions: SessionUpdateManyWithoutGameInput
   owner: UserUpdateOneWithoutGamesInput
 }
@@ -255,6 +287,11 @@ input GameUpdateWithoutWordsDataInput {
 input GameUpdateWithWhereUniqueWithoutOwnerInput {
   where: GameWhereUniqueInput!
   data: GameUpdateWithoutOwnerDataInput!
+}
+
+input GameUpdateWithWhereUniqueWithoutPatternInput {
+  where: GameWhereUniqueInput!
+  data: GameUpdateWithoutPatternDataInput!
 }
 
 input GameUpdateWithWhereUniqueWithoutWordsInput {
@@ -271,6 +308,12 @@ input GameUpsertWithWhereUniqueWithoutOwnerInput {
   where: GameWhereUniqueInput!
   update: GameUpdateWithoutOwnerDataInput!
   create: GameCreateWithoutOwnerInput!
+}
+
+input GameUpsertWithWhereUniqueWithoutPatternInput {
+  where: GameWhereUniqueInput!
+  update: GameUpdateWithoutPatternDataInput!
+  create: GameCreateWithoutPatternInput!
 }
 
 input GameUpsertWithWhereUniqueWithoutWordsInput {
@@ -466,35 +509,35 @@ scalar Long
 
 type Mutation {
   createUser(data: UserCreateInput!): User!
+  createPattern(data: PatternCreateInput!): Pattern!
   createGame(data: GameCreateInput!): Game!
   createSession(data: SessionCreateInput!): Session!
   createWord(data: WordCreateInput!): Word!
-  createPattern(data: PatternCreateInput!): Pattern!
   updateUser(data: UserUpdateInput!, where: UserWhereUniqueInput!): User
+  updatePattern(data: PatternUpdateInput!, where: PatternWhereUniqueInput!): Pattern
   updateGame(data: GameUpdateInput!, where: GameWhereUniqueInput!): Game
   updateSession(data: SessionUpdateInput!, where: SessionWhereUniqueInput!): Session
   updateWord(data: WordUpdateInput!, where: WordWhereUniqueInput!): Word
-  updatePattern(data: PatternUpdateInput!, where: PatternWhereUniqueInput!): Pattern
   deleteUser(where: UserWhereUniqueInput!): User
+  deletePattern(where: PatternWhereUniqueInput!): Pattern
   deleteGame(where: GameWhereUniqueInput!): Game
   deleteSession(where: SessionWhereUniqueInput!): Session
   deleteWord(where: WordWhereUniqueInput!): Word
-  deletePattern(where: PatternWhereUniqueInput!): Pattern
   upsertUser(where: UserWhereUniqueInput!, create: UserCreateInput!, update: UserUpdateInput!): User!
+  upsertPattern(where: PatternWhereUniqueInput!, create: PatternCreateInput!, update: PatternUpdateInput!): Pattern!
   upsertGame(where: GameWhereUniqueInput!, create: GameCreateInput!, update: GameUpdateInput!): Game!
   upsertSession(where: SessionWhereUniqueInput!, create: SessionCreateInput!, update: SessionUpdateInput!): Session!
   upsertWord(where: WordWhereUniqueInput!, create: WordCreateInput!, update: WordUpdateInput!): Word!
-  upsertPattern(where: PatternWhereUniqueInput!, create: PatternCreateInput!, update: PatternUpdateInput!): Pattern!
   updateManyUsers(data: UserUpdateInput!, where: UserWhereInput): BatchPayload!
+  updateManyPatterns(data: PatternUpdateInput!, where: PatternWhereInput): BatchPayload!
   updateManyGames(data: GameUpdateInput!, where: GameWhereInput): BatchPayload!
   updateManySessions(data: SessionUpdateInput!, where: SessionWhereInput): BatchPayload!
   updateManyWords(data: WordUpdateInput!, where: WordWhereInput): BatchPayload!
-  updateManyPatterns(data: PatternUpdateInput!, where: PatternWhereInput): BatchPayload!
   deleteManyUsers(where: UserWhereInput): BatchPayload!
+  deleteManyPatterns(where: PatternWhereInput): BatchPayload!
   deleteManyGames(where: GameWhereInput): BatchPayload!
   deleteManySessions(where: SessionWhereInput): BatchPayload!
   deleteManyWords(where: WordWhereInput): BatchPayload!
-  deleteManyPatterns(where: PatternWhereInput): BatchPayload!
 }
 
 enum MutationType {
@@ -532,6 +575,7 @@ type Pattern implements Node {
   description: String!
   pattern: PatternType!
   focusType: FocusType!
+  games(where: GameWhereInput, orderBy: GameOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Game!]
 }
 
 """A connection to a list of items."""
@@ -549,11 +593,19 @@ input PatternCreateInput {
   description: String!
   pattern: PatternType!
   focusType: FocusType!
+  games: GameCreateManyWithoutPatternInput
 }
 
-input PatternCreateOneInput {
-  create: PatternCreateInput
+input PatternCreateOneWithoutGamesInput {
+  create: PatternCreateWithoutGamesInput
   connect: PatternWhereUniqueInput
+}
+
+input PatternCreateWithoutGamesInput {
+  name: String!
+  description: String!
+  pattern: PatternType!
+  focusType: FocusType!
 }
 
 """An edge in a connection."""
@@ -639,31 +691,32 @@ enum PatternType {
   Order
 }
 
-input PatternUpdateDataInput {
-  name: String
-  description: String
-  pattern: PatternType
-  focusType: FocusType
-}
-
 input PatternUpdateInput {
   name: String
   description: String
   pattern: PatternType
   focusType: FocusType
+  games: GameUpdateManyWithoutPatternInput
 }
 
-input PatternUpdateOneInput {
-  create: PatternCreateInput
+input PatternUpdateOneWithoutGamesInput {
+  create: PatternCreateWithoutGamesInput
   connect: PatternWhereUniqueInput
   delete: Boolean
-  update: PatternUpdateDataInput
-  upsert: PatternUpsertNestedInput
+  update: PatternUpdateWithoutGamesDataInput
+  upsert: PatternUpsertWithoutGamesInput
 }
 
-input PatternUpsertNestedInput {
-  update: PatternUpdateDataInput!
-  create: PatternCreateInput!
+input PatternUpdateWithoutGamesDataInput {
+  name: String
+  description: String
+  pattern: PatternType
+  focusType: FocusType
+}
+
+input PatternUpsertWithoutGamesInput {
+  update: PatternUpdateWithoutGamesDataInput!
+  create: PatternCreateWithoutGamesInput!
 }
 
 input PatternWhereInput {
@@ -859,9 +912,9 @@ input PatternWhereInput {
 
   """All values that are not contained in given list."""
   focusType_not_in: [FocusType!]
-  _MagicalBackRelation_GameToPattern_every: GameWhereInput
-  _MagicalBackRelation_GameToPattern_some: GameWhereInput
-  _MagicalBackRelation_GameToPattern_none: GameWhereInput
+  games_every: GameWhereInput
+  games_some: GameWhereInput
+  games_none: GameWhereInput
 }
 
 input PatternWhereUniqueInput {
@@ -871,20 +924,20 @@ input PatternWhereUniqueInput {
 
 type Query {
   users(where: UserWhereInput, orderBy: UserOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [User]!
+  patterns(where: PatternWhereInput, orderBy: PatternOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Pattern]!
   games(where: GameWhereInput, orderBy: GameOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Game]!
   sessions(where: SessionWhereInput, orderBy: SessionOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Session]!
   words(where: WordWhereInput, orderBy: WordOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Word]!
-  patterns(where: PatternWhereInput, orderBy: PatternOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Pattern]!
   user(where: UserWhereUniqueInput!): User
+  pattern(where: PatternWhereUniqueInput!): Pattern
   game(where: GameWhereUniqueInput!): Game
   session(where: SessionWhereUniqueInput!): Session
   word(where: WordWhereUniqueInput!): Word
-  pattern(where: PatternWhereUniqueInput!): Pattern
   usersConnection(where: UserWhereInput, orderBy: UserOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): UserConnection!
+  patternsConnection(where: PatternWhereInput, orderBy: PatternOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): PatternConnection!
   gamesConnection(where: GameWhereInput, orderBy: GameOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): GameConnection!
   sessionsConnection(where: SessionWhereInput, orderBy: SessionOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): SessionConnection!
   wordsConnection(where: WordWhereInput, orderBy: WordOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): WordConnection!
-  patternsConnection(where: PatternWhereInput, orderBy: PatternOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): PatternConnection!
 
   """Fetches an object given its ID"""
   node(
@@ -1204,10 +1257,10 @@ input SessionWhereUniqueInput {
 
 type Subscription {
   user(where: UserSubscriptionWhereInput): UserSubscriptionPayload
+  pattern(where: PatternSubscriptionWhereInput): PatternSubscriptionPayload
   game(where: GameSubscriptionWhereInput): GameSubscriptionPayload
   session(where: SessionSubscriptionWhereInput): SessionSubscriptionPayload
   word(where: WordSubscriptionWhereInput): WordSubscriptionPayload
-  pattern(where: PatternSubscriptionWhereInput): PatternSubscriptionPayload
 }
 
 type User implements Node {

@@ -4,21 +4,12 @@ const crypto = require('crypto');
 const R = require('ramda');
 const mail = require('../../mail');
 const {
-  ResetPasswordsMatch,
-  ResetTokenExpired,
   ResetTokenNotFound,
   InvalidPassword,
-  NotAuthorizedToDelete,
   throwError,
 } = require('../../errors');
 const helmet = require('../helmet');
-const {
-  validate,
-  sanitizeEmail,
-  setCookie,
-  clearCookie,
-  findUser,
-} = require('../../utils');
+const { validate, sanitizeEmail, findUser } = require('../../utils');
 
 async function login(parent, { input }, ctx, info) {
   const user = await findUser(ctx.db.query.user, { email: input.email });

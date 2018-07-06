@@ -3,7 +3,6 @@ const auth = require('./Mutation/auth');
 const pattern = require('./Mutation/pattern');
 const game = require('./Mutation/game');
 const word = require('./Mutation/word');
-const AuthPayload = require('./AuthPayload');
 
 module.exports = {
   Query,
@@ -13,5 +12,4 @@ module.exports = {
     ...game,
     ...word,
   },
-  AuthPayload,
 };

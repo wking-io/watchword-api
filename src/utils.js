@@ -9,7 +9,6 @@ const {
   PasswordsNoMatch,
   JwtFailedToVerify,
   NotLoggedIn,
-  NotAuthorized,
   NoPropFound,
   throwError,
 } = require('./errors');
