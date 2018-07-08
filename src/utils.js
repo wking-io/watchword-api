@@ -109,13 +109,8 @@ function ifLoggedIn(fn) {
   };
 }
 
-function hasPermission(user, needed) {
-  const matched = user.permissions.filter(have => needed.includes(have));
-  if (matched.length > 0) {
-    return true;
-  }
-
-  return false;
+function hasPermission({ role }, needed) {
+  return role === needed;
 }
 
 function log(x) {

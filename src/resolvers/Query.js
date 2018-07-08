@@ -10,7 +10,11 @@ async function games(parent, args, ctx, info) {
   );
 }
 async function game(parent, { id }, ctx, info) {
-  return ctx.db.query.game({ where: { id } }, info);
+  const [game] = await ctx.db.query.games(
+    { where: { id, owner: { id: ctx.request.userId } } },
+    info
+  );
+  return game;
 }
 
 async function me(parent, args, ctx, info) {
@@ -29,15 +33,16 @@ async function sessions(parent, args, ctx, info) {
   );
 }
 
-async function session(parent, args, ctx, info) {
-  return ctx.db.query.session(
-    { where: { game: { owner: { id: ctx.request.userId } } } },
+async function session(parent, { id }, ctx, info) {
+  const [session] = await ctx.db.query.sessions(
+    { where: { id, game: { owner: { id: ctx.request.userId } } } },
     info
   );
+  return session;
 }
 
 async function users(parent, args, ctx, info) {
-  if (!hasPermission(ctx.request.user, ['Admin'])) {
+  if (!hasPermission(ctx.request.user, 'Admin')) {
     throwError([NotAuthorized, {}]);
   }
 
@@ -45,7 +50,7 @@ async function users(parent, args, ctx, info) {
 }
 
 async function user(parent, { id }, ctx, info) {
-  if (!hasPermission(ctx.request.user, ['Admin'])) {
+  if (!hasPermission(ctx.request.user, 'Admin')) {
     throwError([NotAuthorized, {}]);
   }
 

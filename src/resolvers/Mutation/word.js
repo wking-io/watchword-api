@@ -7,7 +7,7 @@ async function createWord(parent, { input }, ctx, info) {
 }
 
 async function deleteWord(parent, { id }, ctx, info) {
-  if (!hasPermission(ctx.request.user, ['Admin'])) {
+  if (!hasPermission(ctx.request.user, 'Admin')) {
     throwError([NotAuthorizedToDelete('word'), {}]);
   }
 
@@ -15,7 +15,7 @@ async function deleteWord(parent, { id }, ctx, info) {
 }
 
 async function updateWord(parent, { id, input }, ctx, info) {
-  if (!hasPermission(ctx.request.user, ['Admin'])) {
+  if (!hasPermission(ctx.request.user, 'Admin')) {
     throwError([NotAuthorized, {}]);
   }
 

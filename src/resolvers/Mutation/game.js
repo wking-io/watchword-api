@@ -33,7 +33,7 @@ async function deleteGame(_, { id }, ctx, info) {
 
   if (
     game.owner.id !== ctx.request.userId ||
-    !hasPermission(ctx.request.user, ['Admin'])
+    !hasPermission(ctx.request.user, 'Admin')
   ) {
     throwError([NotAuthorizedToDelete('game'), {}]);
   }
@@ -48,7 +48,7 @@ async function updateGame(_, { id, input }, context, info) {
 
   if (
     game.owner.id !== ctx.request.userId ||
-    !hasPermission(ctx.request.user, ['Admin'])
+    !hasPermission(ctx.request.user, 'Admin')
   ) {
     throwError([NotAuthorized, {}]);
   }

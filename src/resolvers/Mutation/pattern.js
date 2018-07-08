@@ -11,7 +11,7 @@ async function createPattern(_, { input }, ctx, info) {
 }
 
 async function deletePattern(_, { id }, ctx, info) {
-  if (!hasPermission(ctx.request.user, ['Admin'])) {
+  if (!hasPermission(ctx.request.user, 'Admin')) {
     throwError([NotAuthorizedToDelete('pattern'), {}]);
   }
 
@@ -19,7 +19,7 @@ async function deletePattern(_, { id }, ctx, info) {
 }
 
 async function updatePattern(_, { id, input }, context, info) {
-  if (!hasPermission(ctx.request.user, ['Admin'])) {
+  if (!hasPermission(ctx.request.user, 'Admin')) {
     throwError([NotAuthorized, {}]);
   }
 

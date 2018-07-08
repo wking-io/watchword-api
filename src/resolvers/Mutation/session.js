@@ -42,7 +42,7 @@ async function updateSession(parent, { id, input }, ctx, info) {
 
   if (
     session.game.owner.id !== ctx.request.userId ||
-    !hasPermission(ctx.request.user, ['Admin'])
+    !hasPermission(ctx.request.user, 'Admin')
   ) {
     throwError([NotAuthorized, {}]);
   }
@@ -62,7 +62,7 @@ async function deleteSession(parent, { id }, ctx, info) {
 
   if (
     session.game.owner.id !== ctx.request.userId ||
-    !hasPermission(ctx.request.user, ['Admin'])
+    !hasPermission(ctx.request.user, 'Admin')
   ) {
     throwError([NotAuthorizedToDelete('session'), {}]);
   }

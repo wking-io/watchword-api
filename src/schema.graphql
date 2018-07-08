@@ -1,24 +1,56 @@
-# import Game from './generated/prisma.graphql'
-# import Pattern from './generated/prisma.graphql'
-# import Session from './generated/prisma.graphql'
-# import User from './generated/prisma.graphql'
-# import Word from './generated/prisma.graphql'
-# import PatternType from './generated/prisma.graphql'
-# import FocusType from './generated/prisma.graphql'
-# import Focus from './generated/prisma.graphql'
-# import UserRole from './generated/prisma.graphql'
+# import * from './generated/prisma.graphql'
 
 type Query {
-  games: [Game]!
+  games(
+    where: GameWhereInput
+    orderBy: GameOrderByInput
+    skip: Int
+    after: String
+    before: String
+    first: Int
+    last: Int
+  ): [Game]!
   game(id: ID!): Game
   me: User
-  patterns: [Pattern]!
+  patterns(
+    where: PatternWhereInput
+    orderBy: PatternOrderByInput
+    skip: Int
+    after: String
+    before: String
+    first: Int
+    last: Int
+  ): [Pattern]!
   pattern(pattern: PatternType!): Pattern
-  sessions(id: ID!): [Session]!
+  sessions(
+    where: SessionWhereInput
+    orderBy: SessionOrderByInput
+    skip: Int
+    after: String
+    before: String
+    first: Int
+    last: Int
+  ): [Session]!
   session(id: ID!): Session
-  users: [User]!
+  users(
+    where: UserWhereInput
+    orderBy: UserOrderByInput
+    skip: Int
+    after: String
+    before: String
+    first: Int
+    last: Int
+  ): [User]!
   user(id: ID!): User
-  words: [Word]!
+  words(
+    where: WordWhereInput
+    orderBy: WordOrderByInput
+    skip: Int
+    after: String
+    before: String
+    first: Int
+    last: Int
+  ): [Word]!
   word(id: ID!): Word
 }
 
