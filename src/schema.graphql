@@ -70,6 +70,7 @@ input GameInput {
   focus: Focus!
   size: Int!
   words: [String!]!
+  name: String!
 }
 
 input LoginInput {

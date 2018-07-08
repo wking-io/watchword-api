@@ -6,18 +6,21 @@ const {
   NotAuthorizedToDelete,
 } = require('../../errors');
 
-async function createSession(parent, { input }, context, info) {
-  return ctx.db.mutation.createSession({
-    data: {
-      game: {
-        connect: {
-          id: input.gameId,
+async function createSession(parent, { input }, ctx, info) {
+  return ctx.db.mutation.createSession(
+    {
+      data: {
+        game: {
+          connect: {
+            id: input.gameId,
+          },
         },
+        name: input.name,
+        complete: false,
       },
-      name: input.name,
-      complete: false,
     },
-  });
+    info
+  );
 }
 
 async function completeSession(parent, { id }, ctx, info) {
@@ -26,7 +29,7 @@ async function completeSession(parent, { id }, ctx, info) {
       where: { id },
       data: {
         complete: true,
-        completedAt: Date.now(),
+        completedAt: new Date(Date.now()),
       },
     },
     info
@@ -70,6 +73,6 @@ async function deleteSession(parent, { id }, ctx, info) {
 module.exports = {
   createSession: helmet(createSession),
   completeSession: helmet(completeSession),
-  deleteSession: helmet(isLoggedIn(deleteSession)),
-  updateSession: helmet(isLoggedIn(updateSession)),
+  deleteSession: helmet(ifLoggedIn(deleteSession)),
+  updateSession: helmet(ifLoggedIn(updateSession)),
 };

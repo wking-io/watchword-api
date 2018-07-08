@@ -1,5 +1,5 @@
 # source: https://us1.prisma.sh/contact/watchword/dev
-# timestamp: Fri Jul 06 2018 07:52:06 GMT-0500 (CDT)
+# timestamp: Sat Jul 07 2018 23:01:15 GMT-0500 (CDT)
 
 type AggregateGame {
   count: Int!
@@ -952,7 +952,7 @@ type Session implements Node {
   createdAt: DateTime!
   updatedAt: DateTime!
   complete: Boolean!
-  completedAt: DateTime!
+  completedAt: DateTime
   game(where: GameWhereInput): Game!
 }
 
@@ -969,7 +969,7 @@ type SessionConnection {
 input SessionCreateInput {
   name: String!
   complete: Boolean!
-  completedAt: DateTime!
+  completedAt: DateTime
   game: GameCreateOneWithoutSessionsInput!
 }
 
@@ -981,7 +981,7 @@ input SessionCreateManyWithoutGameInput {
 input SessionCreateWithoutGameInput {
   name: String!
   complete: Boolean!
-  completedAt: DateTime!
+  completedAt: DateTime
 }
 
 """An edge in a connection."""
@@ -1014,7 +1014,7 @@ type SessionPreviousValues {
   createdAt: DateTime!
   updatedAt: DateTime!
   complete: Boolean!
-  completedAt: DateTime!
+  completedAt: DateTime
 }
 
 type SessionSubscriptionPayload {

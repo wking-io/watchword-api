@@ -68,7 +68,7 @@ type Session {
   createdAt: DateTime!
   updatedAt: DateTime!
   complete: Boolean!
-  completedAt: DateTime!
+  completedAt: DateTime
   game: Game!
 }
 
