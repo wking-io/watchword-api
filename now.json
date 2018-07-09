@@ -1,5 +1,5 @@
 {
-  "name": "watchword-api",
+  "name": "watchword",
   "alias": "watchword-api",
   "env": {
     "PRISMA_ENDPOINT": "@watchword-prisma-endpoint",
