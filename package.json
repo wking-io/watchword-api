@@ -13,16 +13,6 @@
     "dev": "npm-run-all --parallel start:dev playground",
     "prisma": "prisma deploy -e .env.prisma"
   },
-  "now": {
-    "alias": "watchword-api",
-    "env": {
-      "PRISMA_ENDPOINT": "@watchword-prisma-endpoint",
-      "APP_SECRET": "@watchword-app-secret",
-      "FRONTEND_URL": "@watchword-frontend-url",
-      "APOLLO_ENGINE_KEY": "@watchword-apollo-engine-key",
-      "POSTMARK_KEY": "@watchword-postmark-key"
-    }
-  },
   "dependencies": {
     "apollo-engine": "1.1.2",
     "apollo-errors": "1.9.0",
