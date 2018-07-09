@@ -1,4 +1,5 @@
 const { formatError } = require('apollo-errors');
+const { ApolloEngine } = require('apollo-engine');
 const jwt = require('jsonwebtoken');
 const createServer = require('./createServer');
 const db = require('./db');
@@ -27,10 +28,7 @@ server.express.use(async (req, res, next) => {
 });
 
 const options = {
-  port: 8000,
-  endpoint: '/graphql',
-  subscriptions: '/subscriptions',
-  playground: '/playground',
+  port: parseInt(process.env.PORT, 10) || 8000,
   formatError,
   cors: {
     credentials: true,
@@ -38,8 +36,33 @@ const options = {
   },
 };
 
-server.start(options, ({ port }) =>
-  console.log(
-    `Server started, listening on port ${port} for incoming requests.`
-  )
-);
+if (process.env.APOLLO_ENGINE_KEY) {
+  const engine = new ApolloEngine({
+    apiKey: process.env.APOLLO_ENGINE_KEY,
+  });
+
+  const httpServer = server.createHttpServer({
+    tracing: true,
+    cacheControl: true,
+  });
+
+  engine.listen(
+    {
+      httpServer,
+      ...options,
+    },
+    deets =>
+      console.log(
+        `Server with Apollo Engine is running on http://localhost:${
+          options.port
+        }`
+      )
+  );
+} else {
+  graphQLServer.start(
+    {
+      port,
+    },
+    () => console.log(`Server is running on http://localhost:${options.port}`)
+  );
+}

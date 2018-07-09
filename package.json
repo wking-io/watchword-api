@@ -22,10 +22,12 @@
       "MAIL_PORT": "@watchword-mail-port",
       "MAIL_USER": "@watchword-mail-user",
       "MAIL_PASS": "@watchword-mail-pass",
-      "FRONTEND_URL": "@watchword-frontend-url"
+      "FRONTEND_URL": "@watchword-frontend-url",
+      "APOLLO_ENGINE_KEY": "@watchword-apollo-engine-key"
     }
   },
   "dependencies": {
+    "apollo-engine": "1.1.2",
     "apollo-errors": "1.9.0",
     "bcryptjs": "2.4.3",
     "cookie-parser": "1.4.3",
