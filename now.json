@@ -1,0 +1,11 @@
+{
+  "name": "watchword-api",
+  "alias": "watchword-api",
+  "env": {
+    "PRISMA_ENDPOINT": "@watchword-prisma-endpoint",
+    "APP_SECRET": "@watchword-app-secret",
+    "FRONTEND_URL": "@watchword-frontend-url",
+    "APOLLO_ENGINE_KEY": "@watchword-apollo-engine-key",
+    "POSTMARK_KEY": "@watchword-postmark-key"
+  }
+}
