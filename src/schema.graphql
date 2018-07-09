@@ -116,6 +116,7 @@ input RecoverInput {
 
 input ResetInput {
   password: String!
+  passwordConfirm: String!
 }
 
 input PatternInput {
@@ -145,7 +146,7 @@ input SignupInput {
   name: String!
   email: String!
   password: String!
-  confirmPassword: String!
+  passwordConfirm: String!
 }
 
 input WordInput {

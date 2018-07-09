@@ -9,7 +9,7 @@ const {
   throwError,
 } = require('../../errors');
 const helmet = require('../helmet');
-const { validate, sanitizeEmail, findUser } = require('../../utils');
+const { validate, sanitizeEmail, findUser, hash } = require('../../utils');
 
 async function login(parent, { input }, ctx, info) {
   const user = await findUser(ctx.db.query.user, { email: input.email });
@@ -23,8 +23,7 @@ async function login(parent, { input }, ctx, info) {
 }
 
 async function recover(parent, { input }, ctx, info) {
-  const user = await findUser(ctx.db.query.users, { email: input.email });
-
+  const user = await findUser(ctx.db.query.user, { email: input.email });
   const resetToken = crypto.randomBytes(20).toString('hex') + Date.now();
   const resetExpires = new Date(Date.now() + 360000);
 
@@ -44,17 +43,17 @@ async function recover(parent, { input }, ctx, info) {
   return result;
 }
 
-async function reset(parent, args, ctx, info) {
-  const input = await R.compose(
+async function reset(parent, { resetToken, input }, ctx, info) {
+  const password = await R.compose(
     hash,
     validate.passwordConfirm,
     validate.passwordLength
-  )(args.input);
+  )(input);
 
   const [user] = await ctx.db.query.users({
     where: {
-      resetToken: args.input.resetToken,
-      resetExpires_gte: Date.now() - 3600000, // within the last hour
+      resetToken,
+      resetExpires_gte: new Date(Date.now() - 3600000), // within the last hour
     },
   });
 
@@ -65,8 +64,9 @@ async function reset(parent, args, ctx, info) {
   const updatedUser = await ctx.db.mutation.updateUser({
     where: { email: user.email },
     data: {
-      ...input,
+      password,
       resetExpires: null,
+      resetToken: null,
     },
   });
 
@@ -76,24 +76,23 @@ async function reset(parent, args, ctx, info) {
   };
 }
 
-async function signup(parent, args, ctx, info) {
-  const input = await R.compose(
+async function signup(parent, { input }, ctx, info) {
+  const password = await R.compose(
     hash,
     validate.passwordConfirm,
     validate.passwordLength,
     validate.email,
     sanitizeEmail
-  )(args.input);
+  )(input);
 
-  const user = await ctx.db.mutation.createUser(
-    {
-      data: {
-        ...input,
-        role: 'Teacher',
-      },
+  const user = await ctx.db.mutation.createUser({
+    data: {
+      name: input.name,
+      email: input.email,
+      password,
+      role: 'Teacher',
     },
-    info
-  );
+  });
 
   return { user, token: jwt.sign({ userId: user.id }, process.env.APP_SECRET) };
 }

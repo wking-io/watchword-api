@@ -1,19 +1,14 @@
 const { formatError } = require('apollo-errors');
 const { ApolloEngine } = require('apollo-engine');
-const jwt = require('jsonwebtoken');
 const createServer = require('./createServer');
 const db = require('./db');
-const cookieParser = require('cookie-parser');
-const R = require('ramda');
-const { getToken, verifyToken, safeProp, findUser, log } = require('./utils');
+const { getToken, verifyToken, safeProp, findUser } = require('./utils');
 
 const server = createServer();
 
-server.express.use(cookieParser());
-
 server.express.use((req, res, next) => {
   const token = getToken(req);
-  if (R.not(R.isEmpty(token))) {
+  if (token) {
     const user = verifyToken(token);
     req.userId = safeProp('userId', user);
   }
@@ -51,7 +46,7 @@ if (process.env.APOLLO_ENGINE_KEY) {
       httpServer,
       ...options,
     },
-    deets =>
+    () =>
       console.log(
         `Server with Apollo Engine is running on http://localhost:${
           options.port

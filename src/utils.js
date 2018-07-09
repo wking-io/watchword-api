@@ -17,7 +17,7 @@ async function findUser(find, by) {
   const user = await find({ where: by });
 
   if (!user) {
-    throwError([UserNotFound, { data: { id } }]);
+    throwError([UserNotFound, { data: { by } }]);
   }
 
   return user;
@@ -65,7 +65,7 @@ function sanitizeEmail(input) {
 
 async function hash(input) {
   const password = await bcrypt.hash(input.password, 10);
-  return;
+  return password;
 }
 
 const validate = {
@@ -84,7 +84,7 @@ const validate = {
   },
 
   passwordConfirm(input) {
-    if (!validator.equals(input.password, input.confirmPassword)) {
+    if (!validator.equals(input.password, input.passwordConfirm)) {
       throwError([PasswordsNoMatch, {}]);
     }
     return input;
@@ -114,7 +114,7 @@ function hasPermission({ role }, needed) {
 }
 
 function log(x) {
-  console.log(`Check it -> ${x}`);
+  console.log('Check it ->', x);
   return x;
 }
 
