@@ -1,6 +1,6 @@
 {
-  "name": "watchword",
-  "alias": "watchword-api",
+  "name": "watchword-api",
+  "alias": "watchword-api.now.sh",
   "env": {
     "PRISMA_ENDPOINT": "@watchword-prisma-endpoint",
     "APP_SECRET": "@watchword-app-secret",
