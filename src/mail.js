@@ -1,38 +1,30 @@
-const nodemailer = require('nodemailer');
+const postmark = require('postmark');
 
-const transport = nodemailer.createTransport({
-  host: process.env.MAIL_HOST,
-  port: process.env.MAIL_PORT,
-  auth: {
-    user: process.env.MAIL_USER,
-    pass: process.env.MAIL_PASS,
-  },
-});
-
-const mailTemplate = text => `
-  <div className="email" style="
-    border:1px solid black;
-    padding: 20px;
-    font-family: sans-serif;
-    line-height: 2;
-    font-size: 20px;
-  ">
-    <h2>Hello There</h2>
-    <p>${text}</p>
-    <p>👋 Will King</p>
-  </div>`;
+var client = new postmark.Client(process.env.POSTMARK_KEY);
 
 const email = {
   async send(options) {
-    console.log('email user ', options);
     const mailOptions = {
-      from: 'William King <contact@wking.io>',
-      to: options.user.email,
-      subject: options.subject,
-      html: mailTemplate(options.message),
+      From: 'William King <contact@wking.io>',
+      To: process.env.NOW ? options.user.email : 'contact@wking.io',
+      TemplateId: 7503550,
+      TemplateModel: {
+        product_name: 'Watchword',
+        product_url: 'https://www.watchword.app/',
+        name: options.user.name,
+        action_url: options.resetUrl,
+        company_name: 'Watchword',
+      },
     };
 
-    return transport.sendMail(mailOptions);
+    return client.sendEmailWithTemplate(mailOptions, function(error, results) {
+      if (error) {
+        console.error('Unable to send via postmark: ' + error.message);
+        return;
+      } else {
+        console.info('Messages sent to postmark');
+      }
+    });
   },
 };
 

@@ -34,10 +34,7 @@ async function recover(parent, { input }, ctx, info) {
 
   const mailResult = await mail.send({
     user,
-    subject: 'Password Reset - WatchWord',
-    message: `You can reset your password here: <a href="${
-      process.env.FRONTEND_URL
-    }/reset/${resetToken}">Reset Password</a>`,
+    resetUrl: `${process.env.FRONTEND_URL}/reset/${resetToken}`,
   });
 
   return result;

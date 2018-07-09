@@ -23,7 +23,8 @@
       "MAIL_USER": "@watchword-mail-user",
       "MAIL_PASS": "@watchword-mail-pass",
       "FRONTEND_URL": "@watchword-frontend-url",
-      "APOLLO_ENGINE_KEY": "@watchword-apollo-engine-key"
+      "APOLLO_ENGINE_KEY": "@watchword-apollo-engine-key",
+      "POSTMARK_KEY": "@watchword-postmark-key"
     }
   },
   "dependencies": {
@@ -37,6 +38,7 @@
     "graphql-yoga": "1.14.6",
     "jsonwebtoken": "8.2.2",
     "nodemailer": "4.6.6",
+    "postmark": "1.6.1",
     "prisma-binding": "2.0.2",
     "ramda": "0.25.0",
     "validator": "10.3.0"
