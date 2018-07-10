@@ -72,8 +72,8 @@ const Query = {
   session: helmet(ifLoggedIn(session)),
   users: helmet(ifLoggedIn(users)),
   user: helmet(ifLoggedIn(user)),
-  words: helmet(ifLoggedIn(words)),
-  word: helmet(ifLoggedIn(word)),
+  words: helmet(words),
+  word: helmet(word),
 };
 
 module.exports = { Query };
