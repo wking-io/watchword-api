@@ -9,7 +9,7 @@ type Query {
     before: String
     first: Int
     last: Int
-  ): [Game]!
+  ): [Game!]!
   game(id: ID!): Game
   me: User
   patterns(
@@ -30,7 +30,7 @@ type Query {
     before: String
     first: Int
     last: Int
-  ): [Session]!
+  ): [Session!]!
   session(id: ID!): Session
   users(
     where: UserWhereInput
@@ -50,7 +50,7 @@ type Query {
     before: String
     first: Int
     last: Int
-  ): [Word]!
+  ): [Word!]!
   word(id: ID!): Word
 }
 
