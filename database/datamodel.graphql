@@ -24,7 +24,8 @@ type Pattern {
   description: String!
   pattern: PatternType! @unique
   focusType: FocusType!
-  games: [Game!]!
+  games: [Game!]! @relation(name: "GamesByPattern")
+  demo: Game @relation(name: "PatternDemo")
 }
 
 enum PatternType {
@@ -45,7 +46,7 @@ type Game {
   id: ID! @unique
   createdAt: DateTime!
   updatedAt: DateTime!
-  pattern: Pattern!
+  pattern: Pattern! @relation(name: "GamesByPattern")
   sessions: [Session!]!
   owner: User!
   focus: Focus!
