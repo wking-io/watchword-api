@@ -1,5 +1,5 @@
 # source: https://us1.prisma.sh/contact/watchword/dev
-# timestamp: Fri Jul 13 2018 09:57:05 GMT-0500 (CDT)
+# timestamp: Fri Jul 13 2018 12:38:49 GMT-0500 (CDT)
 
 type AggregateGame {
   count: Int!
