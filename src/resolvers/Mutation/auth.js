@@ -38,7 +38,7 @@ async function recover(parent, { input }, ctx, info) {
   });
 
   return {
-    updatedUser,
+    user: updatedUser,
     token: jwt.sign({ userId: updatedUser.id }, process.env.APP_SECRET),
   };
 }
@@ -71,7 +71,7 @@ async function reset(parent, { resetToken, input }, ctx, info) {
   });
 
   return {
-    updatedUser,
+    user: updatedUser,
     token: jwt.sign({ userId: updatedUser.id }, process.env.APP_SECRET),
   };
 }
