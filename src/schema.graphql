@@ -65,7 +65,7 @@ type Mutation {
   deleteSession(id: ID!): Session
   deleteWord(id: ID!): Word
   login(input: LoginInput!): AuthPayload!
-  recover(input: RecoverInput!): User
+  recover(input: RecoverInput!): AuthPayload!
   reset(resetToken: String!, input: ResetInput!): AuthPayload!
   signup(input: SignupInput!): AuthPayload!
   updateGame(id: ID!, input: GameInput!): Game

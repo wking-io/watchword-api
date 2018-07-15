@@ -27,7 +27,7 @@ async function recover(parent, { input }, ctx, info) {
   const resetToken = crypto.randomBytes(20).toString('hex') + Date.now();
   const resetExpires = new Date(Date.now() + 360000);
 
-  const result = await ctx.db.mutation.updateUser({
+  const updatedUser = await ctx.db.mutation.updateUser({
     where: { email: input.email },
     data: { resetToken, resetExpires },
   });
@@ -37,7 +37,10 @@ async function recover(parent, { input }, ctx, info) {
     resetUrl: `${process.env.FRONTEND_URL}/reset/${resetToken}`,
   });
 
-  return result;
+  return {
+    user: updatedUser,
+    token: jwt.sign({ userId: updatedUser.id }, process.env.APP_SECRET),
+  };
 }
 
 async function reset(parent, { resetToken, input }, ctx, info) {
@@ -68,7 +71,7 @@ async function reset(parent, { resetToken, input }, ctx, info) {
   });
 
   return {
-    updatedUser,
+    user: updatedUser,
     token: jwt.sign({ userId: updatedUser.id }, process.env.APP_SECRET),
   };
 }
