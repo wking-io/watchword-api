@@ -22,6 +22,7 @@ type Query {
     last: Int
   ): [Pattern!]!
   pattern(pattern: PatternType!): Pattern
+  play(id: ID!): PlayData
   sessions(
     where: SessionWhereInput
     orderBy: SessionOrderByInput
@@ -74,7 +75,67 @@ type Mutation {
   updateWord(id: ID!, input: WordUpdateInput!): Word
 }
 
+### INTERFACES ###
+
+union PlayData =
+    ConnectData
+  | FilterData
+  | IdentifyData
+  | MemorizeData
+  | OrderData
+
 ### TYPES ###
+
+type ConnectData {
+  id: ID!
+  name: String!
+  focus: Focus!
+  size: Int!
+  pattern: PatternType!
+  words: [Word!]!
+  left: [Word!]!
+  right: [Word!]!
+}
+
+type FilterData {
+  id: ID!
+  name: String!
+  focus: Focus!
+  size: Int!
+  pattern: PatternType!
+  words: [Word!]!
+  answer: [Word!]!
+  rest: [Word!]!
+}
+
+type IdentifyData {
+  id: ID!
+  name: String!
+  focus: Focus!
+  size: Int!
+  pattern: PatternType!
+  words: [Word!]!
+}
+
+type MemorizeData {
+  id: ID!
+  name: String!
+  focus: Focus!
+  size: Int!
+  pattern: PatternType!
+  words: [Word!]!
+  data: [Word!]!
+}
+
+type OrderData {
+  id: ID!
+  name: String!
+  focus: Focus!
+  size: Int!
+  pattern: PatternType!
+  words: [Word!]!
+  data: [Word!]!
+}
 
 type SuccessMessage {
   message: String!
