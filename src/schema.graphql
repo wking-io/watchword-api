@@ -20,7 +20,7 @@ type Query {
     before: String
     first: Int
     last: Int
-  ): [Pattern]!
+  ): [Pattern!]!
   pattern(pattern: PatternType!): Pattern
   sessions(
     where: SessionWhereInput
@@ -40,7 +40,7 @@ type Query {
     before: String
     first: Int
     last: Int
-  ): [User]!
+  ): [User!]!
   user(id: ID!): User
   words(
     where: WordWhereInput
