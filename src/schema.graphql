@@ -124,7 +124,7 @@ type MemorizeData {
   size: Int!
   pattern: PatternType!
   words: [Word!]!
-  data: [Word!]!
+  memorizeData: [Word!]!
 }
 
 type OrderData {
@@ -134,7 +134,7 @@ type OrderData {
   size: Int!
   pattern: PatternType!
   words: [Word!]!
-  data: [Word!]!
+  orderData: [Word!]!
 }
 
 type SuccessMessage {

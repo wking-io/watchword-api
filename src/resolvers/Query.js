@@ -36,10 +36,7 @@ function buildConnect(game) {
     { left: [], right: [] }
   );
 
-  const result = { ...game, pattern: game.pattern.pattern, left, right };
-  console.log(result);
-
-  return result;
+  return { ...game, pattern: game.pattern.pattern, left, right };
 }
 
 function buildFilter(game) {}
