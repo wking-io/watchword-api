@@ -115,6 +115,7 @@ type IdentifyData {
   size: Int!
   pattern: PatternType!
   words: [Word!]!
+  options: [String!]!
 }
 
 type MemorizeData {

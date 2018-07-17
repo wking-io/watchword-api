@@ -118,6 +118,8 @@ function log(x) {
   return x;
 }
 
+const shuffle = arr => arr.sort(() => 0.5 - Math.random());
+
 module.exports = {
   getToken,
   verifyToken,
@@ -131,4 +133,5 @@ module.exports = {
   ifLoggedIn,
   hasPermission,
   log,
+  shuffle,
 };
