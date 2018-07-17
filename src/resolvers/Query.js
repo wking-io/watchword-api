@@ -3,21 +3,21 @@ const {
   compose,
   eqProps,
   groupWith,
+  join,
   length,
+  map,
   prop,
   reduce,
   splitEvery,
   sortBy,
   toLower,
 } = require('ramda');
-const { hasPermission, ifLoggedIn } = require('../utils');
+const { hasPermission, ifLoggedIn, shuffle, log } = require('../utils');
 const { throwError, NotAuthorized } = require('../errors');
+const getOptions = require('../getOptions');
 const helmet = require('./helmet');
 
 // QUERY HELPERS
-
-const shuffle = arr => arr.sort(() => 0.5 - Math.random());
-
 const toPairs = key =>
   compose(
     splitEvery(2),
@@ -53,7 +53,18 @@ function buildFilter(game) {
 }
 
 function buildIdentify(game) {
-  return { ...game, pattern: game.pattern.pattern };
+  return {
+    ...game,
+    pattern: game.pattern.pattern,
+    options: map(
+      compose(
+        join('/'),
+        getOptions(game.focus, game.size),
+        prop(toLower(game.focus))
+      ),
+      game.words
+    ),
+  };
 }
 
 function buildMemorize(game) {
