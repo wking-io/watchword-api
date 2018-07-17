@@ -1,51 +1,70 @@
 const { forwardTo } = require('prisma-binding');
+const {
+  compose,
+  eqProps,
+  groupWith,
+  length,
+  prop,
+  reduce,
+  splitEvery,
+  sortBy,
+  toLower,
+} = require('ramda');
 const { hasPermission, ifLoggedIn } = require('../utils');
 const { throwError, NotAuthorized } = require('../errors');
 const helmet = require('./helmet');
 
 // QUERY HELPERS
-function addOrCreate(word, key, acc) {
-  if (acc[key]) {
-    acc[key] = [...acc[key], word];
-  } else {
-    acc[key] = [word];
-  }
-  return acc;
-}
 
-function buildConnect(game) {
-  const { words, focus } = game;
-  const pairs = words.reduce((acc, word) => {
-    if (focus === 'Word') {
-      return addOrCreate(word, word.word, acc);
-    } else if (focus === 'Group') {
-      return addOrCreate(word, word.group, acc);
-    } else if (focus === 'Beginning') {
-      return addOrCreate(word, word.beginning, acc);
-    } else if (focus === 'Ending') {
-      return addOrCreate(word, word.ending, acc);
-    } else if (focus === 'Vowel') {
-      return addOrCreate(word, word.vowel, acc);
-    }
-  }, {});
-  const { left, right } = Object.values(pairs).reduce(
-    (acc, [left, right]) => ({
-      left: [...acc.left, left],
-      right: [...acc.right, right],
-    }),
-    { left: [], right: [] }
+const shuffle = arr => arr.sort(() => 0.5 - Math.random());
+
+const toPairs = key =>
+  compose(
+    splitEvery(2),
+    sortBy(prop(key))
   );
 
-  return { ...game, pattern: game.pattern.pattern, left, right };
+const splitPairs = ([A, B], [a, b]) => [[...A, a], [...B, b]];
+
+function buildConnect(game) {
+  const [left, right] = compose(
+    reduce(splitPairs, [[], []]),
+    toPairs(toLower(game.focus))
+  )(game.words);
+
+  return {
+    ...game,
+    pattern: game.pattern.pattern,
+    left: shuffle(left),
+    right: shuffle(right),
+  };
 }
 
-function buildFilter(game) {}
+const isolate = key =>
+  compose(
+    sortBy(length),
+    groupWith(eqProps(key)),
+    sortBy(prop(key))
+  );
 
-function buildIdentify(game) {}
+function buildFilter(game) {
+  const [[answer], rest] = isolate(toLower(game.focus))(game.words);
+  return { ...game, pattern: game.pattern.pattern, answer, rest };
+}
 
-function buildMemorize(game) {}
+function buildIdentify(game) {
+  return { ...game, pattern: game.pattern.pattern };
+}
 
-function buildOrder(game) {}
+function buildMemorize(game) {
+  const memorizeData = shuffle([...game.words, ...game.words]);
+  return { ...game, pattern: game.pattern.pattern, memorizeData };
+}
+
+function buildOrder(game) {
+  const orderData = shuffle(game.words);
+  return { ...game, pattern: game.pattern.pattern, orderData };
+}
 
 // QUERY RESOLVERS
 

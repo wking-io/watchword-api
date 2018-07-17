@@ -104,7 +104,7 @@ type FilterData {
   size: Int!
   pattern: PatternType!
   words: [Word!]!
-  answer: [Word!]!
+  answer: Word!
   rest: [Word!]!
 }
 
