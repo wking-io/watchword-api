@@ -22,7 +22,7 @@ type Query {
     last: Int
   ): [Pattern!]!
   pattern(pattern: PatternType!): Pattern
-  play(id: ID!): PlayData
+  play(id: ID!): PlayData!
   sessions(
     where: SessionWhereInput
     orderBy: SessionOrderByInput
