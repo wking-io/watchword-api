@@ -19,7 +19,7 @@ async function login(parent, { input }, ctx, info) {
     throwError([InvalidPassword, {}]);
   }
 
-  return { user, token: jwt.sign({ userId: user.id }, process.env.APP_SECRET) };
+  return { ...user, token: jwt.sign({ userId: user.id }, process.env.APP_SECRET) };
 }
 
 async function recover(parent, { input }, ctx, info) {
@@ -38,7 +38,7 @@ async function recover(parent, { input }, ctx, info) {
   });
 
   return {
-    user: updatedUser,
+    ...updatedUser,
     token: jwt.sign({ userId: updatedUser.id }, process.env.APP_SECRET),
   };
 }
@@ -71,7 +71,7 @@ async function reset(parent, { resetToken, input }, ctx, info) {
   });
 
   return {
-    user: updatedUser,
+    ...updatedUser,
     token: jwt.sign({ userId: updatedUser.id }, process.env.APP_SECRET),
   };
 }
@@ -94,7 +94,7 @@ async function signup(parent, { input }, ctx, info) {
     },
   });
 
-  return { user, token: jwt.sign({ userId: user.id }, process.env.APP_SECRET) };
+  return { ...user, token: jwt.sign({ userId: user.id }, process.env.APP_SECRET) };
 }
 
 module.exports = {

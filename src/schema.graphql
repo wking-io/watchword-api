@@ -65,10 +65,10 @@ type Mutation {
   deletePattern(id: ID!): Pattern
   deleteSession(id: ID!): Session
   deleteWord(id: ID!): Word
-  login(input: LoginInput!): AuthPayload!
-  recover(input: RecoverInput!): AuthPayload!
-  reset(resetToken: String!, input: ResetInput!): AuthPayload!
-  signup(input: SignupInput!): AuthPayload!
+  login(input: LoginInput!): User!
+  recover(input: RecoverInput!): User!
+  reset(resetToken: String!, input: ResetInput!): User!
+  signup(input: SignupInput!): User!
   updateGame(id: ID!, input: GameInput!): Game
   updatePattern(id: ID!, input: PatternUpdateInput!): Pattern
   updateSession(id: ID!, input: SessionUpdateInput!): Session
@@ -142,13 +142,8 @@ type SuccessMessage {
   message: String!
 }
 
-type AuthPayload {
-  token: String!
-  user: User!
-}
-
 type User {
-  id: ID!
+  token: String!
   createdAt: DateTime!
   updatedAt: DateTime!
   name: String!
