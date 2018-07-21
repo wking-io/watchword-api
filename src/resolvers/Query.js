@@ -1,4 +1,5 @@
 const { forwardTo } = require('prisma-binding');
+const jwt = require('jsonwebtoken');
 const {
   compose,
   eqProps,
@@ -143,7 +144,11 @@ async function users(parent, args, ctx, info) {
     throwError([NotAuthorized, {}]);
   }
 
-  return ctx.db.query.users({}, info);
+  const users = await ctx.db.query.users({}, info);
+  return users.map(user => ({
+    ...user,
+    token: jwt.sign({ userId: user.id }, process.env.APP_SECRET),
+  }));
 }
 
 async function user(parent, { id }, ctx, info) {
@@ -151,7 +156,11 @@ async function user(parent, { id }, ctx, info) {
     throwError([NotAuthorized, {}]);
   }
 
-  return ctx.db.query.users({ where: { id } }, info);
+  const [user] = await ctx.db.query.users({ where: { id } }, info);
+
+  return user
+    ? { ...user, token: jwt.sign({ userId: user.id }, process.env.APP_SECRET) }
+    : null;
 }
 
 const words = forwardTo('db');
