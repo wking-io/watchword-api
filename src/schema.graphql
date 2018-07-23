@@ -56,6 +56,7 @@ type Query {
 }
 
 type Mutation {
+  archiveGame(id: ID!): Game
   createGame(input: GameInput!): Game!
   createPattern(input: PatternInput!): Pattern!
   createSession(input: SessionInput!): Session!
@@ -68,6 +69,7 @@ type Mutation {
   login(input: LoginInput!): User!
   recover(input: RecoverInput!): User!
   reset(resetToken: String!, input: ResetInput!): User!
+  restoreGame(id: ID!): Game
   signup(input: SignupInput!): User!
   updateGame(id: ID!, input: GameInput!): Game
   updatePattern(id: ID!, input: PatternUpdateInput!): Pattern

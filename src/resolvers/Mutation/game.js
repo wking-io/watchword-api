@@ -70,8 +70,38 @@ async function updateGame(_, { id, input }, context, info) {
   });
 }
 
+async function archiveGame(_, { id }, ctx, info) {
+  const where = { id };
+  const game = await ctx.db.query.game({ where }, `owner { id }`);
+
+  if (
+    game.owner.id !== ctx.request.userId ||
+    !hasPermission(ctx.request.user, 'Admin')
+  ) {
+    throwError([NotAuthorized, {}]);
+  }
+
+  return ctx.db.mutation.updateGame({ data: { archived: true } });
+}
+
+async function restoreGame(_, { id }, ctx, info) {
+  const where = { id };
+  const game = await ctx.db.query.game({ where }, `owner { id }`);
+
+  if (
+    game.owner.id !== ctx.request.userId ||
+    !hasPermission(ctx.request.user, 'Admin')
+  ) {
+    throwError([NotAuthorized, {}]);
+  }
+
+  return ctx.db.mutation.updateGame({ data: { archived: false } });
+}
+
 module.exports = {
+  archiveGame: helmet(ifLoggedIn(archiveGame)),
   createGame: helmet(ifLoggedIn(createGame)),
   deleteGame: helmet(ifLoggedIn(deleteGame)),
+  restoreGame: helmet(ifLoggedIn(restoreGame)),
   updateGame: helmet(ifLoggedIn(updateGame)),
 };
