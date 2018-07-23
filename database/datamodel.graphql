@@ -53,6 +53,7 @@ type Game {
   size: Int!
   words: [Word!]!
   name: String!
+  archived: Boolean! @default(value: "false")
 }
 
 enum Focus {

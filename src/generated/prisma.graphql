@@ -1,5 +1,5 @@
 # source: https://us1.prisma.sh/contact/watchword/dev
-# timestamp: Fri Jul 13 2018 12:38:49 GMT-0500 (CDT)
+# timestamp: Mon Jul 23 2018 14:41:35 GMT-0500 (CDT)
 
 type AggregateGame {
   count: Int!
@@ -53,6 +53,7 @@ type Game implements Node {
   size: Int!
   words(where: WordWhereInput, orderBy: WordOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Word!]
   name: String!
+  archived: Boolean!
 }
 
 """A connection to a list of items."""
@@ -69,6 +70,7 @@ input GameCreateInput {
   focus: Focus!
   size: Int!
   name: String!
+  archived: Boolean
   pattern: PatternCreateOneWithoutGamesInput!
   sessions: SessionCreateManyWithoutGameInput
   owner: UserCreateOneWithoutGamesInput!
@@ -104,6 +106,7 @@ input GameCreateWithoutOwnerInput {
   focus: Focus!
   size: Int!
   name: String!
+  archived: Boolean
   pattern: PatternCreateOneWithoutGamesInput!
   sessions: SessionCreateManyWithoutGameInput
   words: WordCreateManyWithoutGamesInput
@@ -113,6 +116,7 @@ input GameCreateWithoutPatternInput {
   focus: Focus!
   size: Int!
   name: String!
+  archived: Boolean
   sessions: SessionCreateManyWithoutGameInput
   owner: UserCreateOneWithoutGamesInput!
   words: WordCreateManyWithoutGamesInput
@@ -122,6 +126,7 @@ input GameCreateWithoutSessionsInput {
   focus: Focus!
   size: Int!
   name: String!
+  archived: Boolean
   pattern: PatternCreateOneWithoutGamesInput!
   owner: UserCreateOneWithoutGamesInput!
   words: WordCreateManyWithoutGamesInput
@@ -131,6 +136,7 @@ input GameCreateWithoutWordsInput {
   focus: Focus!
   size: Int!
   name: String!
+  archived: Boolean
   pattern: PatternCreateOneWithoutGamesInput!
   sessions: SessionCreateManyWithoutGameInput
   owner: UserCreateOneWithoutGamesInput!
@@ -158,6 +164,8 @@ enum GameOrderByInput {
   size_DESC
   name_ASC
   name_DESC
+  archived_ASC
+  archived_DESC
 }
 
 type GamePreviousValues {
@@ -167,6 +175,7 @@ type GamePreviousValues {
   focus: Focus!
   size: Int!
   name: String!
+  archived: Boolean!
 }
 
 type GameSubscriptionPayload {
@@ -212,6 +221,7 @@ input GameUpdateDataInput {
   focus: Focus
   size: Int
   name: String
+  archived: Boolean
   pattern: PatternUpdateOneWithoutGamesInput
   sessions: SessionUpdateManyWithoutGameInput
   owner: UserUpdateOneWithoutGamesInput
@@ -222,6 +232,7 @@ input GameUpdateInput {
   focus: Focus
   size: Int
   name: String
+  archived: Boolean
   pattern: PatternUpdateOneWithoutGamesInput
   sessions: SessionUpdateManyWithoutGameInput
   owner: UserUpdateOneWithoutGamesInput
@@ -276,6 +287,7 @@ input GameUpdateWithoutOwnerDataInput {
   focus: Focus
   size: Int
   name: String
+  archived: Boolean
   pattern: PatternUpdateOneWithoutGamesInput
   sessions: SessionUpdateManyWithoutGameInput
   words: WordUpdateManyWithoutGamesInput
@@ -285,6 +297,7 @@ input GameUpdateWithoutPatternDataInput {
   focus: Focus
   size: Int
   name: String
+  archived: Boolean
   sessions: SessionUpdateManyWithoutGameInput
   owner: UserUpdateOneWithoutGamesInput
   words: WordUpdateManyWithoutGamesInput
@@ -294,6 +307,7 @@ input GameUpdateWithoutSessionsDataInput {
   focus: Focus
   size: Int
   name: String
+  archived: Boolean
   pattern: PatternUpdateOneWithoutGamesInput
   owner: UserUpdateOneWithoutGamesInput
   words: WordUpdateManyWithoutGamesInput
@@ -303,6 +317,7 @@ input GameUpdateWithoutWordsDataInput {
   focus: Focus
   size: Int
   name: String
+  archived: Boolean
   pattern: PatternUpdateOneWithoutGamesInput
   sessions: SessionUpdateManyWithoutGameInput
   owner: UserUpdateOneWithoutGamesInput
@@ -516,6 +531,10 @@ input GameWhereInput {
 
   """All values not ending with the given string."""
   name_not_ends_with: String
+  archived: Boolean
+
+  """All values that are not equal to given value."""
+  archived_not: Boolean
   pattern: PatternWhereInput
   sessions_every: SessionWhereInput
   sessions_some: SessionWhereInput
